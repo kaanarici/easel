@@ -1,16 +1,12 @@
 # easel
 
+A trimmed fork of [The-Sentience-Company/easel](https://github.com/The-Sentience-Company/easel) with a neutral editor-style UI.
+
 A local review board for work an agent wants a human to look at.
-
-![A comment and a pin queued on a board, sent, and picked up by an agent that was blocked waiting for them](docs/demo/easel-loop.gif)
-
-*Above: the board in a browser. Below: the agent, blocked on one command, taking the feedback and republishing — the round it publishes lands in the open tab.*
 
 The agent publishes a page. You open it in a browser, annotate anything on it, and click Send. The agent — which has been blocked on a single command this whole time — gets your feedback back as JSON, applies it, and republishes. The second round arrives with diff markers showing exactly what changed since you last looked.
 
 Nothing runs in the cloud. A `easeld` daemon runs under launchd on `http://127.0.0.1:4400` and owns all state, so a board outlives the session that published it, survives a daemon restart, and can be handed between agents.
-
-**[Screenshot tour →](docs/demo.md)** — a real review, round by round: annotations, decision widgets, diffs.
 
 ## Why it exists
 
@@ -23,7 +19,7 @@ easel gives that exchange a page and a cursor. You point at the thing. The agent
 Requires macOS and Node 22+. The install pulls a Chromium through Puppeteer, which mermaid-cli uses to render diagrams to SVG at publish time — expect the first `npm install` to be slow and roughly a gigabyte on disk.
 
 ```
-git clone https://github.com/The-Sentience-Company/easel.git && cd easel
+git clone https://github.com/kaanarici/easel.git && cd easel
 npm install                                    # deps + postinstall builds the whiteboard bundle
 install/install.sh                             # idempotent; writes the plist, puts `easel` on PATH, waits for health
 easel open --template page --data page.json    # → board key + URL
@@ -34,9 +30,7 @@ Open the URL, annotate, hit Send — the blocked `easel await` returns your feed
 
 `http://127.0.0.1:4400/` lists every board and marks which ones have an agent waiting on you.
 
-Updates never install themselves. `easel update` is the manual upgrade; `easel autoupdate on` opts into a daily one — off by default because an auto-updater is standing permission to run whatever the remote ships next, and [docs/usage.md § Auto-update](docs/usage.md#auto-update) explains the shipped one and why writing your own is worth the exercise.
-
-The daemon sends an anonymous daily usage heartbeat; [docs/usage.md § Telemetry](docs/usage.md#telemetry) says what it sends and how to turn it off.
+Upgrading is manual: `easel update`.
 
 To back out, `install/install.sh --uninstall` removes the agent, the plist, and the `easel` entry point. It leaves `~/.easel/` — your boards and database — deliberately intact; `rm -rf ~/.easel` is the separate, deliberate step that erases them.
 
@@ -54,8 +48,6 @@ To back out, `install/install.sh --uninstall` removes the agent, the plist, and 
 | `easel end <key>` | close a board — reads keep working, writes 409 |
 | `easel purge [--older-than 30d]` | delete untouched boards and shrink the DB |
 | `easel update` | pull, rebuild, restart, health-check the installed checkout |
-| `easel autoupdate on\|off\|status` | opt-in daily unattended update — off by default, deliberately |
-| `easel telemetry on\|off\|status` | the anonymous daily heartbeat — on by default, [what it sends](docs/usage.md#telemetry) |
 
 ## What you get on the page
 
@@ -72,15 +64,7 @@ Nothing is delivered until you click Send, so a half-finished thought never wake
 | Template | Use it for |
 |---|---|
 | `review` | plans, designs, comparisons — prose sections plus decisions and votes |
-| `eval` | eval runs — dossiers, blind compare, or an item matrix, chosen on data shape |
-| `compare` | 2–6 named arms side by side — before/after, variants — one verdict per case |
-| `replay` | conversation exchanges replayed through 2–4 named arms — one reply per arm, one verdict per exchange |
-| `gallery` | image candidates judged by looking — design concepts, generated imagery, UI states |
-| `rulings` | labeled cases adjudicated one by one — answer keys, goldens, triage lists |
-| `queue` | a worklist of items to triage |
 | `page` | anything else — hand-authored HTML through the same shell and design system |
-
-Templates take JSON and own their markup, so a generated board cannot reproduce the layout and contrast problems hand-written HTML kept hitting. Reach for `page` only when the shape genuinely is not one of the others; it accepts HTML composed from the shared `sd-*` class vocabulary.
 
 ## Two things that bite
 
@@ -98,7 +82,7 @@ Templates take JSON and own their markup, so a generated board cannot reproduce 
 | `templates/` | the publishable shapes |
 | `render/` | mermaid, diff, and excalidraw pre-render |
 | `skills/` | [the agent-side guide](skills/easel/SKILL.md) — how an agent drives all of the above |
-| `install/` | installer, updater, launchd plist template |
+| `install/` | installer, launchd plist template |
 | `docs/` | [usage.md](docs/usage.md) (flow), [api.md](docs/api.md) (routes), [templates/page.md](docs/templates/page.md) (the `sd-*` vocabulary), [design-system.md](docs/design-system.md) |
 
 ## Development
