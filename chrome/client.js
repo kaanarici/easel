@@ -52,7 +52,6 @@ const WIDTH_NARROW_HOTKEY = 'e'
 const WIDTH_WIDEN_HOTKEY = 'r'
 const SEND_HOTKEY = 's'
 const SEND_HOTKEY_LABEL = 'Cmd+Shift+S'
-const COMPACT_QUERY = '(max-width: 1500px)'
 const WIDTH_MIN = 600
 const WIDTH_MAX = 1400
 const WIDTH_KEY_STEP = 40
@@ -65,7 +64,6 @@ const state = {
   annotating: false,
   diffView: true,
   roundsExpanded: false, // false = pills scroll on one line; true = wrap to a grid
-  compact: false,      // true = the whole chrome collapses to one row
   draftsByKey: new Map(), // anchor key (sid, or sid@x,y for pins) -> draft items, for page-side removal
 }
 
@@ -110,7 +108,6 @@ const FAMILY_STORAGE = 'sf-theme-family'
 const LOOK_STORAGE = 'sf-diagram-look'
 const WRAP_STORAGE = 'sf-wrap-code'
 const WIDTH_STORAGE = 'sf-width'
-const COMPACT_STORAGE = 'sf-chrome-compact'
 const THEME_FAMILIES = [
   ['', 'Default'],
   ['lantern', 'Lantern'],
@@ -167,19 +164,6 @@ function nudgeWidth(dir) {
   const next = Math.min(WIDTH_MAX, Math.max(WIDTH_MIN, cur + dir * WIDTH_KEY_STEP))
   ui.widthSlider.value = next
   applyWidth(next)
-}
-
-// Collapsing hides the settings cluster (theme, width), the diff legend and the
-// round note — everything a reader can re-open, nothing they act on.
-function applyCompact(on) {
-  state.compact = on
-  CHROME.classList.toggle('sf-compact', on)
-  ui.compactToggle.classList.toggle('sf-on', !on)
-  ui.compactToggle.setAttribute('aria-expanded', String(!on))
-  ui.compactToggle.title = on
-    ? 'Expand the bar: theme, page width, diff legend, round note'
-    : 'Collapse the bar to one row'
-  ui.compactToggle.setAttribute('aria-label', ui.compactToggle.title)
 }
 
 function cycleTheme() {
@@ -267,24 +251,14 @@ function buildChrome() {
   ui.endSession.type = 'button'
   ui.endSession.title = 'End this board: the agent stops waiting and nothing more can be sent'
   ui.endSession.onclick = endSession
-  ui.compactToggle = el('button', 'sf-chrome-toggle') // the chevron is drawn in CSS
-  ui.compactToggle.type = 'button'
-  ui.compactToggle.onclick = () => {
-    applyCompact(!state.compact)
-    localStorage.setItem(COMPACT_STORAGE, state.compact ? '1' : '0')
-  }
 
   ui.identity = el('div', 'sf-identity')
   ui.identity.append(brand, ui.title, ui.wipMarker, ui.agent, ui.status)
   ui.actions = el('div', 'sf-actions')
   ui.actions.append(ui.annotateToggle, ui.queueToggle, ui.chatToggle, ui.sendNow, ui.endSession)
-  ui.themeTools.append(ui.themeToggle, ui.tunerToggle, ui.compactToggle)
+  ui.themeTools.append(ui.themeToggle, ui.tunerToggle)
   topbar.append(ui.identity, ui.actions, ui.themeTools)
 
-  // A narrow viewport opens collapsed; once the button is pressed that choice
-  // is the browser's, at every width.
-  const storedCompact = localStorage.getItem(COMPACT_STORAGE)
-  applyCompact(storedCompact ? storedCompact === '1' : matchMedia(COMPACT_QUERY).matches)
 
   ui.rounds = el('div', 'sf-rounds')
   show(ui.rounds, false)
@@ -694,7 +668,7 @@ function render() {
   renderChat(d.chat)
   renderAudit(d.audit)
   resolveGate(d.audit)
-  setAgentPresence(d)
+  setAgentWaiting(d.agentWaiting)
   // A tab that arrives after the end never sees the `end` event, so status is
   // the only thing that tells it. The server refuses the writes either way.
   // Belt-and-braces, deliberately untested: no second render of an ended
@@ -1137,29 +1111,10 @@ function reportForcedReveal(reason) {
   show(ui.gateBanner, true)
 }
 
-const agentPresence = { waiting: false, lost: null }
-
-/* Patch, not replace: the daemon broadcasts `lost` alone when a listener
-   reattaches and `waiting` alone when one parks or leaves, so applying a whole
-   payload would clear whichever half the event left out.
-   A lost listener is the state the reader most needs — a killed `easel await`
-   (routine in editor harnesses) otherwise looks exactly like a live one. */
-function setAgentPresence(patch) {
-  if (patch.waiting != null) agentPresence.waiting = Boolean(patch.waiting)
-  // The SSE event carries the agent id; /state and hello carry {agent, at}.
-  if ('lost' in patch || 'listenerLost' in patch) {
-    const lost = 'lost' in patch ? patch.lost : patch.listenerLost
-    agentPresence.lost = lost ? (lost.agent ?? lost) : null
-  }
-  const { waiting, lost } = agentPresence
-  const stranded = !waiting && Boolean(lost)
+function setAgentWaiting(waiting) {
   ui.agent.classList.toggle('sf-agent-waiting', waiting)
-  ui.agent.classList.toggle('sf-agent-lost', stranded)
-  ui.agentLabel.textContent = waiting ? 'agent waiting' : stranded ? 'listener lost' : ''
-  // Nothing is dropped — the cursor is server-side, so the batch waits.
-  ui.agent.title = stranded
-    ? `${lost} stopped listening. Send still queues; it delivers when an agent reattaches.`
-    : ''
+  ui.agentLabel.textContent = waiting ? 'agent waiting' : ''
+  ui.agent.title = waiting ? 'agent waiting' : '' // narrow enough, the label drops to the spinner
   show(ui.cancelWait, waiting)
 }
 
@@ -1437,15 +1392,11 @@ function openDraftManager(node, event, drafts, pin) {
 }
 
 function placePopover(node, event) {
-  // .sf-popover is position:fixed, so clientX/clientY need no scroll offset.
+  // .sf-popover is position:fixed, so clientX/clientY need no scroll offset. The
+  // lower clamp keeps it on screen when it is taller than the viewport.
   const pad = 8
-  const height = node.offsetHeight
-  const below = event.clientY + pad
-  // Flip above the click when it will not fit below. Clamping to the bottom
-  // edge, which is what this did, drags it over the text the note is about.
-  const top = below + height <= window.innerHeight - pad ? below : Math.max(pad, event.clientY - height - pad)
   node.style.left = `${Math.max(pad, Math.min(event.clientX, window.innerWidth - node.offsetWidth - pad))}px`
-  node.style.top = `${top}px`
+  node.style.top = `${Math.max(pad, Math.min(event.clientY + pad, window.innerHeight - node.offsetHeight - pad))}px`
 }
 
 const POPOVER_FOCUSABLE = 'textarea, input, select, a[href], [contenteditable]:not([contenteditable="false"])'
@@ -1876,7 +1827,7 @@ function handleEvent(event, data) {
       const haveWip = state.data?.wip?.updatedAt || null
       const missed = data.seq != null && eventSeq != null && data.seq !== eventSeq
       eventSeq = data.seq ?? eventSeq
-      setAgentPresence({ waiting: data.agentWaiting, listenerLost: data.listenerLost ?? null })
+      if (data.agentWaiting != null) setAgentWaiting(data.agentWaiting)
       if (missed || have !== data.round || haveWip !== data.wipAt) sync()
       break
     }
@@ -1891,7 +1842,7 @@ function handleEvent(event, data) {
       sync()
       break
     case 'agent':
-      setAgentPresence(data)
+      setAgentWaiting(data.waiting)
       break
     case 'end':
       setEnded()
@@ -2544,7 +2495,7 @@ function buildTuner() {
 // ---------------------------------------------------------------- boot
 
 buildChrome()
-// The tab bar sticks just under the chrome, whose height changes with compact mode and the rounds strip.
+// The tab bar sticks just under the chrome, whose height changes with the rounds strip.
 new ResizeObserver(() => document.documentElement.style.setProperty('--sf-chrome-h', `${CHROME.offsetHeight}px`)).observe(CHROME)
 buildWhiteboard()
 setAnnotating(true)

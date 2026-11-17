@@ -91,7 +91,6 @@ function chromeFixture(title) {
     <div class="sf-theme-tools">
       <button class="sf-theme-toggle">Dark</button>
       <button class="sf-tuner-toggle" aria-label="Tune the theme">⚙</button>
-      <button class="sf-chrome-toggle sf-on"></button>
     </div>
   </div>
   <div class="sf-rounds">

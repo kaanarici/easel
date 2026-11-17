@@ -72,7 +72,7 @@ test('the shell ships the gate, so the blank page is covered before any JS runs'
   const shell = await (await fetch(`${BASE}/b/${key}`)).text()
   assert.match(shell, /class="sf-shell sf-gated"/)
   assert.match(shell, /class="sf-gate"/)
-  assert.match(shell, /Loading/)
+  assert.match(shell, /Checking layout/)
   assert.match(shell, /sf-gate-show/)
   // The reveal path must not depend on the module script loading at all.
   assert.ok(shell.indexOf('__sfRevealGate') < shell.indexOf('/assets/client.js'))
@@ -103,20 +103,7 @@ test('the gate holds while the content has not arrived', async () => {
   release()
   assert.equal(g.gated, true)
   assert.equal(g.contentVisible, false, 'the empty content must not be on screen')
-  assert.match(g.title, /Loading/)
-  await page.close()
-})
-
-test('a short wait does not put the loading card on screen', async () => {
-  const key = await openBoard()
-  const page = await browser.newPage()
-  await holdState(page, 800)
-  page.goto(`${BASE}/b/${key}`).catch(() => {})
-  await page.waitForFunction(() => document.body.classList.contains('sf-gated'))
-  const early = await page.evaluate(() => getComputedStyle(document.querySelector('.sf-gate-card')).opacity)
-  assert.equal(early, '0', 'the card appeared before the wait was worth naming')
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('.sf-gate-card')).opacity === '1')
-  assert.equal((await page.evaluate(gateState)).gated, true)
+  assert.match(g.title, /Checking layout/)
   await page.close()
 })
 
