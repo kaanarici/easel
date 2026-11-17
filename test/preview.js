@@ -75,16 +75,24 @@ function escapeText(s) {
 function chromeFixture(title) {
   return `<div id="sf-chrome">
   <div class="sf-topbar">
+    <div class="sf-identity">
     <a class="sf-brand" href="/">easel</a>
     <div class="sf-title">${escapeText(title)}</div>
     <div class="sf-wip-marker">unpublished changes</div>
     <div class="sf-agent sf-agent-waiting">agent waiting<button class="sf-cancel-wait">cancel</button></div>
     <div class="sf-status"><span class="sf-status-dot sf-connected"></span>connected</div>
+    </div>
+    <div class="sf-actions">
     <button class="sf-annotate-toggle sf-on">Annotate</button>
     <button class="sf-send-now">Send 2</button>
-    <button class="sf-queue-toggle">[F]eedback <span class="sf-queue-count">2</span></button>
-    <button class="sf-chat-toggle">[C]hat</button>
-    <button class="sf-chrome-toggle sf-on"></button>
+    <button class="sf-queue-toggle">Feedback <span class="sf-queue-count">2</span></button>
+    <button class="sf-chat-toggle">Chat</button>
+    </div>
+    <div class="sf-theme-tools">
+      <button class="sf-theme-toggle">Dark</button>
+      <button class="sf-tuner-toggle" aria-label="Tune the theme">⚙</button>
+      <button class="sf-chrome-toggle sf-on"></button>
+    </div>
   </div>
   <div class="sf-rounds">
     <div class="sf-round-strip">
@@ -109,7 +117,7 @@ function chromeFixture(title) {
         <div class="sf-item-round">r2</div>
         <div class="sf-item-excerpt">the retry budget should be per-agent not per-call</div>
         <div class="sf-item-comment">This contradicts the cursor design.</div>
-        <button class="sf-item-remove">×</button>
+        <button class="sf-item-remove" aria-label="Remove from queue"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </div>
       <div class="sf-queue-item sf-item-widget sf-item-submitted">
         <div class="sf-item-round">r2</div>
@@ -118,15 +126,32 @@ function chromeFixture(title) {
     </div>
     <button class="sf-queue-send">Send 2</button>
   </aside>
-  <aside class="sf-chat sf-open">
-    <div class="sf-chat-log">
-      <div class="sf-chat-msg sf-msg-agent"><span class="sf-msg-agent-id" title="reviewer-agent">reviewer</span><span class="sf-msg-text">Round 2 is up — the metrics grid is new.</span></div>
-      <div class="sf-chat-msg sf-msg-user"><span class="sf-msg-text">Looks right. One note on the verdict widget.</span></div>
+  <aside class="sf-tuner sf-open">
+    <div class="sf-tuner-title">Theme tuner</div>
+    <div class="sf-tuner-row"><span>Family</span>
+      <div class="sf-theme-pick">
+        <button class="sf-theme-pick-btn sf-on">Default</button>
+        <button class="sf-theme-pick-btn">Lantern</button>
+        <button class="sf-theme-pick-btn">Fig</button>
+      </div>
     </div>
-    <div class="sf-chat-working">working<button class="sf-chat-cancel">cancel</button></div>
+    <div class="sf-tuner-row"><span>Page width</span>
+      <span class="sf-width"><span class="sf-width-keys">E</span><input class="sf-width-slider" type="range"><span class="sf-width-keys">R</span></span>
+      <button class="sf-width-reset">Reset width</button>
+    </div>
+  </aside>
+  <aside class="sf-chat sf-open">
+    <div class="sf-chat-drawer">
+      <div class="sf-chat-header"><div class="sf-chat-title">Conversation</div><button class="sf-chat-close" aria-label="Close chat">×</button></div>
+      <div class="sf-chat-log">
+        <div class="sf-chat-msg sf-msg-agent"><span class="sf-msg-agent-id" title="reviewer-agent">reviewer</span><span class="sf-msg-text">Round 2 is up — the metrics grid is new.</span></div>
+        <div class="sf-chat-msg sf-msg-user"><span class="sf-msg-text">Looks right. One note on the verdict widget.</span></div>
+      </div>
+      <div class="sf-chat-working"><span class="sf-chat-working-label">Working…</span><button class="sf-chat-cancel">Cancel</button></div>
+    </div>
     <form class="sf-chat-form">
-      <textarea class="sf-chat-input" placeholder="Reply…"></textarea>
-      <button class="sf-chat-submit">Send</button>
+      <textarea class="sf-chat-input" placeholder="Message the agent…" rows="1"></textarea>
+      <button class="sf-chat-submit" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
     </form>
   </aside>
   <div class="sf-audit sf-open">
@@ -137,6 +162,15 @@ function chromeFixture(title) {
     </div>
   </div>
   <div class="sf-toasts"><div class="sf-toast">Queued — 2 pending</div></div>
+  <div class="sf-popover" style="left: 383px; top: 220px;">
+    <div class="sf-popover-label">Note</div>
+    <div class="sf-popover-excerpt">Open PRs, in merge order 2</div>
+    <textarea class="sf-popover-text" placeholder="Comment…"></textarea>
+    <div class="sf-popover-actions">
+      <button class="sf-popover-cancel">Cancel</button>
+      <button class="sf-popover-queue">Queue</button>
+    </div>
+  </div>
 </div>`
 }
 

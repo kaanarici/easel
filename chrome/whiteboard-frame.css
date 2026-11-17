@@ -12,8 +12,8 @@ body { font: 13px/1.5 -apple-system, system-ui, sans-serif; background: Canvas; 
 .wb-canvas { flex: 1; min-height: 0; }
 
 .wb-banner { padding: 8px 14px; font-size: 12px; border-bottom: 1px solid rgb(0 0 0 / 0.12); }
-.wb-stale { background: #fdf3d8; color: #6b4a00; }
-.wb-blank, .wb-loading, .wb-ended { background: #f0ece3; color: #4a4235; }
+.wb-stale { background: #fff6d6; color: #6b4a00; }
+.wb-blank, .wb-loading, .wb-ended { background: #f5f5f5; color: #444; }
 .wb-error, .wb-conflict { background: #fdecec; color: #8a1c1c; }
 
 .wb-bar {
@@ -26,17 +26,29 @@ body { font: 13px/1.5 -apple-system, system-ui, sans-serif; background: Canvas; 
   border: 1px solid rgb(0 0 0 / 0.18); border-radius: 7px;
 }
 .wb-bar button {
-  padding: 7px 14px; font: inherit; font-weight: 500;
-  border-radius: 7px; border: 1px solid rgb(0 0 0 / 0.2); cursor: pointer;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  font: inherit;
+  font-weight: 550;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgb(0 0 0 / 0.2);
+  cursor: pointer;
 }
-.wb-send { background: #b4531f; border-color: #b4531f; color: #fff; }
+.wb-send { background: #0a0a0a; border-color: #0a0a0a; color: #fafafa; }
 .wb-send[disabled] { opacity: 0.6; cursor: default; }
 .wb-close, .wb-fit { background: color-mix(in srgb, CanvasText 7%, Canvas); color: inherit; }
 
-html[data-theme="dark"] .wb-stale { background: #4a3c12; color: #f2dfae; }
+html[data-theme="dark"] .wb-stale { background: #3a3010; color: #f2dfae; }
 html[data-theme="dark"] .wb-blank,
 html[data-theme="dark"] .wb-loading,
-html[data-theme="dark"] .wb-ended { background: #262119; color: #cfc5b4; }
+html[data-theme="dark"] .wb-ended { background: #111; color: #c8c8c8; }
 html[data-theme="dark"] .wb-error,
 html[data-theme="dark"] .wb-conflict { background: #4a1f1f; color: #f3c9c9; }
-html[data-theme="dark"] .wb-send { background: #e0824b; border-color: #e0824b; color: #1a1207; }
+html[data-theme="dark"] .wb-send { background: #f0f0f0; border-color: #f0f0f0; color: #111; }

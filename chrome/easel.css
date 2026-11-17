@@ -5,30 +5,105 @@
 
 /* Three FAMILIES — default, lantern, fig — picked in the topbar or pinned via
    ?theme=<family>; each has -light and -dark modes and T flips within one. */
-html[data-theme="light"],
+html[data-theme="light"] {
+  /* Neutral editor greys. Alpha ink composites over any surface. */
+  --color-base-100: #FCFCFC;
+  --color-base-200: #F8F8F8;
+  --color-base-300: #F3F3F3;
+  --color-base-content: #141414;
+  --color-body-content: color-mix(in srgb, #141414 74%, transparent);
+  --color-muted-content: #707070;
+  --color-primary: #3685BF;
+  --color-primary-content: #FCFCFC;
+  --color-primary-hover: #2E76AB;
+  --color-success: #1F8A65;
+  --color-warning: #C08532;
+  --color-error: #CF2D56;
+  --color-info: #3685BF;
+  --color-status-content: #FCFCFC;
+  --color-warning-content: #141414;
+  --marker-content: #FCFCFC;
+  --marker-0: oklch(0.52 0.20 297);
+  --marker-1: oklch(0.50 0.19 332);
+  --marker-2: oklch(0.55 0.17 312);
+  --marker-3: oklch(0.54 0.17 272);
+  --marker-4: oklch(0.44 0.16 342);
+  --marker-5: oklch(0.46 0.15 285);
+  --color-accent-2: #4C7F8C;
+  --diff-del-bg: color-mix(in srgb, #CF2D56 14%, #FCFCFC);
+  --diff-add-bg: color-mix(in srgb, #1F8A65 16%, #FCFCFC);
+  --diff-del-word: color-mix(in srgb, #CF2D56 30%, #FCFCFC);
+  --diff-add-word: color-mix(in srgb, #1F8A65 32%, #FCFCFC);
+  --diff-del-edge: #CF2D56CC;
+  --diff-add-edge: #1F8A65CC;
+  --border: #14141433;
+  --border-subtle: #14141414;
+  --fill: #14141424;
+  --fill-hover: #14141433;
+  --fill-active: #14141433;
+  --shadow-card: none;
+}
+
+html[data-theme="dark"] {
+  /* Neutral editor greys, near-black ground. */
+  --color-base-100: #181818;
+  --color-base-200: #141414;
+  --color-base-300: #141414;
+  --color-base-content: #E4E4E4;
+  --color-body-content: color-mix(in srgb, #E4E4E4 55%, transparent);
+  --color-muted-content: #808080;
+  --color-primary: #599CE7;
+  --color-link: #87c3ff;
+  --color-focus: #E4E4E4;
+  --color-primary-content: #191c22;
+  --color-primary-hover: #6AABE9;
+  --color-success: #3FA266;
+  --color-warning: #F1B467;
+  --color-error: #FC6B83;
+  --color-info: #7BAFE9;
+  --color-status-content: #191c22;
+  --color-warning-content: #141414;
+  --marker-content: #191c22;
+  --marker-0: oklch(0.80 0.17 297);
+  --marker-1: oklch(0.76 0.16 332);
+  --marker-2: oklch(0.86 0.13 312);
+  --marker-3: oklch(0.72 0.16 272);
+  --marker-4: oklch(0.68 0.16 342);
+  --marker-5: oklch(0.62 0.15 285);
+  --color-accent-2: #81A1C1;
+  --diff-del-bg: color-mix(in srgb, #B80049 28%, #181818);
+  --diff-add-bg: color-mix(in srgb, #3FA266 20%, #181818);
+  --diff-del-word: color-mix(in srgb, #B80049 40%, #181818);
+  --diff-add-word: color-mix(in srgb, #3FA266 40%, #181818);
+  --diff-del-edge: #FC6B838F;
+  --diff-add-edge: #3FA2668F;
+  --border: #E4E4E433;
+  --border-subtle: #E4E4E414;
+  --fill: #E4E4E41E;
+  --fill-hover: #E4E4E430;
+  --fill-active: #E4E4E430;
+  --shadow-card: none;
+}
+
+/* Literary families keep the original warm foundation. They must not share the
+   default family's grayscale tokens — a leftover primary-content or shadow
+   from that block is what made lantern/fig read as a tinted default. */
 html[data-theme="lantern-light"],
 html[data-theme="fig-light"] {
   --color-base-100: oklch(0.982 0.010 85);
   --color-base-200: oklch(0.955 0.012 85);
   --color-base-300: oklch(0.915 0.016 82);
-  /* Two text tiers. --color-base-content is the EMPHASIS tier and also every
-     control/table face; --color-body-content is prose, deliberately softer. */
   --color-base-content: oklch(0.25 0.018 55);
   --color-body-content: oklch(0.415 0.020 58);
   --color-muted-content: oklch(0.47 0.020 60);
-  /* Terracotta, hue held at 45 rather than nearer --color-error's 25: adjacent
-     hues would blur the primary/destructive distinction. */
   --color-primary: oklch(0.52 0.13 45);
+  --color-primary-hover: oklch(0.46 0.13 45);
   --color-primary-content: oklch(0.99 0 0);
   --color-success: oklch(0.53 0.13 155);
-  /* Lightness floored so --color-status-content clears 4.5:1 on the fill. */
   --color-warning: oklch(0.54 0.14 75);
   --color-error: oklch(0.55 0.20 25);
-  /* Teal, not blue: at hue 230 the "moved" diff sat 79 from marker-3. */
   --color-info: oklch(0.50 0.105 200);
   --color-status-content: oklch(0.99 0 0);
-  /* Own token, not --color-primary: a theme retoken that moves primary toward
-     the diff hues would otherwise recreate the mark-reads-as-diff defect. */
   --marker-content: oklch(0.99 0 0);
   --marker-0: oklch(0.52 0.20 297);
   --marker-1: oklch(0.50 0.19 332);
@@ -36,46 +111,33 @@ html[data-theme="fig-light"] {
   --marker-3: oklch(0.54 0.17 272);
   --marker-4: oklch(0.44 0.16 342);
   --marker-5: oklch(0.46 0.15 285);
-  /* Teal second accent, for distinguishing one entry from the next. */
   --color-accent-2: oklch(0.50 0.075 195);
-  /* Diff tints. Hues track --color-error and --color-success so a removed line
-     reads as the same red the rest of the system uses. */
   --diff-del-bg: oklch(0.885 0.062 25);
   --diff-add-bg: oklch(0.888 0.072 155);
   --diff-del-word: oklch(0.822 0.110 25);
   --diff-add-word: oklch(0.818 0.125 155);
   --diff-del-edge: oklch(0.800 0.090 25);
   --diff-add-edge: oklch(0.800 0.090 155);
-  /* Chart series, fixed assignment order s0→s4. Validated colorblind-safe as an
-     ordered set against base-100 — do not reorder or restep casually. */
-  --color-chart-1: oklch(0.52 0.13 45);
-  --color-chart-2: oklch(0.55 0.14 210);
-  --color-chart-3: oklch(0.62 0.13 85);
-  --color-chart-4: oklch(0.47 0.12 290);
-  --color-chart-5: oklch(0.58 0.13 150);
   --border: oklch(0.885 0.014 80);
-  /* Lighter than --border: internal table rules, so the outer edge still reads
-     as the stronger line instead of every rule shouting equally. */
   --border-subtle: oklch(0.935 0.012 85);
+  --fill: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  --fill-hover: color-mix(in oklab, var(--color-base-content) 12%, transparent);
+  --fill-active: color-mix(in oklab, var(--color-base-content) 16%, transparent);
   --shadow-card: 0 1px 2px oklch(0.3 0.03 60 / 0.07), 0 4px 12px oklch(0.3 0.03 60 / 0.06);
 }
 
-/* Warm dark, derived from the lavish reference: ground #16150f, accent #e0824b.
-   Hue 85 throughout replaces the previous cool 265, which read the accent blue. */
-/* base-200 is the page ground and is pure black; 100 and 300 step UP from it, so
-   panels lift off the page rather than recessing into it as they do in light. */
-html[data-theme="dark"],
 html[data-theme="lantern-dark"],
 html[data-theme="fig-dark"] {
   --color-base-100: oklch(0.145 0.009 85);
   --color-base-200: oklch(0 0 0);
   --color-base-300: oklch(0.205 0.012 85);
-  /* Warm cream, sampled from the reference's own #ece7db ink rather than a
-     neutral grey: on black the tone is what reads as dim, not the ratio. */
   --color-base-content: oklch(0.945 0.034 88);
   --color-body-content: oklch(0.80 0.038 88);
   --color-muted-content: oklch(0.685 0.034 88);
   --color-primary: oklch(0.705 0.125 52);
+  --color-primary-hover: oklch(0.76 0.125 52);
+  --color-link: oklch(0.78 0.12 52);
+  --color-focus: oklch(0.945 0.034 88);
   --color-primary-content: oklch(0.17 0.015 85);
   --color-success: oklch(0.72 0.14 155);
   --color-warning: oklch(0.80 0.14 75);
@@ -96,13 +158,11 @@ html[data-theme="fig-dark"] {
   --diff-add-word: oklch(0.352 0.088 155);
   --diff-del-edge: oklch(0.520 0.110 25);
   --diff-add-edge: oklch(0.520 0.110 155);
-  --color-chart-1: oklch(0.62 0.13 48);
-  --color-chart-2: oklch(0.60 0.12 210);
-  --color-chart-3: oklch(0.66 0.13 85);
-  --color-chart-4: oklch(0.56 0.12 290);
-  --color-chart-5: oklch(0.64 0.13 150);
   --border: oklch(0.315 0.013 85);
   --border-subtle: oklch(0.245 0.011 85);
+  --fill: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  --fill-hover: color-mix(in oklab, var(--color-base-content) 14%, transparent);
+  --fill-active: color-mix(in oklab, var(--color-base-content) 20%, transparent);
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 14px oklch(0 0 0 / 0.28);
 }
 
@@ -116,6 +176,7 @@ html[data-theme="lantern-light"] {
   --color-body-content: oklch(0.40 0.032 55);
   --color-muted-content: oklch(0.50 0.028 60);
   --color-primary: oklch(0.55 0.16 30);
+  --color-primary-hover: oklch(0.48 0.16 30);
   --color-accent-2: oklch(0.60 0.10 85);
   --border: oklch(0.840 0.028 80);
   --border-subtle: oklch(0.885 0.026 83);
@@ -132,6 +193,9 @@ html[data-theme="lantern-dark"] {
   --color-body-content: oklch(0.905 0.067 78);
   --color-muted-content: oklch(0.782 0.117 74);
   --color-primary: oklch(0.72 0.14 35);
+  --color-primary-hover: oklch(0.78 0.14 35);
+  --color-link: oklch(0.78 0.14 35);
+  --color-focus: oklch(0.884 0.127 99);
   --color-primary-content: oklch(0.19 0.014 70);
   --color-accent-2: oklch(0.75 0.10 85);
   --color-success: oklch(0.80 0.11 150);
@@ -153,6 +217,7 @@ html[data-theme="fig-light"] {
   --color-body-content: oklch(0.40 0.048 330);
   --color-muted-content: oklch(0.50 0.040 335);
   --color-primary: oklch(0.46 0.13 330);
+  --color-primary-hover: oklch(0.40 0.13 330);
   --color-accent-2: oklch(0.50 0.09 135);
   --border: oklch(0.845 0.032 40);
   --border-subtle: oklch(0.895 0.028 48);
@@ -169,6 +234,9 @@ html[data-theme="fig-dark"] {
   --color-body-content: oklch(0.780 0.045 60);
   --color-muted-content: oklch(0.650 0.040 45);
   --color-primary: oklch(0.74 0.11 20);
+  --color-primary-hover: oklch(0.80 0.11 20);
+  --color-link: oklch(0.80 0.11 20);
+  --color-focus: oklch(0.900 0.045 75);
   --color-primary-content: oklch(0.19 0.020 330);
   --color-accent-2: oklch(0.75 0.09 135);
   --color-success: oklch(0.80 0.11 150);
@@ -186,12 +254,23 @@ html[data-theme="fig-dark"] {
   /* All system faces — nothing here is fetched, so the sanitizer has no @font-face
      to strip and the publish path stays same-origin. */
   --font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
-  --radius: 10px;
-  --radius-sm: 6px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius: 8px;
   --space: 16px;
   --rule: 1px solid var(--border);
   --content-max: 1040px;
   --chrome-z: 2147480000;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --dur-micro: 80ms;
+  --dur-quick: 150ms;
+  --dur-fast: 250ms;
+  --sf-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+  --sf-callout-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3Ccircle cx='8' cy='5.2' r='0.9' fill='%23000'/%3E%3Cpath d='M8 7.4v4' stroke='%23000' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  --sf-callout-success: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M5 8.2l2 2 4-4.2' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --sf-callout-warning: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 2.6 14.1 13.4H1.9z' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M8 6.4v3.4' stroke='%23000' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='11.5' r='0.7' fill='%23000'/%3E%3C/svg%3E");
+  --sf-callout-error: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M8 4.8v4.2' stroke='%23000' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='11.2' r='0.7' fill='%23000'/%3E%3C/svg%3E");
 }
 
 /* ------------------------------------------------------------------ base -- */
@@ -200,19 +279,80 @@ html[data-theme="fig-dark"] {
 
 html { color-scheme: light; }
 html[data-theme="dark"], html[data-theme$="-dark"] { color-scheme: dark; }
+/* Display face. Tuner writes --font-serif; default follows sans so the
+   control actually changes Default headings. */
+html[data-theme="light"],
+html[data-theme="lantern-light"],
+html[data-theme="fig-light"] {
+  --color-link: var(--color-primary);
+  --color-focus: var(--color-primary);
+}
+/* The default series order is green / blue / purple / orange / pink. Literary
+   families keep the warmer oklch set. Do not reorder a set casually — each one
+   is the colorblind-safe sequence for that family. */
+html[data-theme="light"],
+html[data-theme="dark"] {
+  --color-chart-1: #1F8A65;
+  --color-chart-2: #2E79B5;
+  --color-chart-3: #7B64B8;
+  --color-chart-4: #F0A040;
+  --color-chart-5: #C85898;
+}
+html[data-theme="lantern-light"],
+html[data-theme="fig-light"] {
+  --color-chart-1: oklch(0.52 0.13 45);
+  --color-chart-2: oklch(0.55 0.14 210);
+  --color-chart-3: oklch(0.62 0.13 85);
+  --color-chart-4: oklch(0.47 0.12 290);
+  --color-chart-5: oklch(0.58 0.13 150);
+}
+html[data-theme="lantern-dark"],
+html[data-theme="fig-dark"] {
+  --color-chart-1: oklch(0.62 0.13 48);
+  --color-chart-2: oklch(0.60 0.12 210);
+  --color-chart-3: oklch(0.66 0.13 85);
+  --color-chart-4: oklch(0.56 0.12 290);
+  --color-chart-5: oklch(0.64 0.13 150);
+}
+html[data-theme="light"],
+html[data-theme="dark"] { --font-serif: var(--font-sans); }
+html[data-theme^="fig"] { --font-serif: 'Optima', 'Seravek', var(--font-sans); }
 
-/* Family typography. lantern keeps the sepia reading measure; fig sets the
-   whole page in Optima. */
+/* Family typography. lantern keeps the sepia reading measure and Iowan
+   display; fig sets the whole page in Optima. */
 html[data-theme^="lantern"] body.sf-shell { font-size: 16px; line-height: 1.74; }
+html[data-theme^="lantern"] .sd-lede, html[data-theme^="lantern"] .sd-intro > p:first-child,
+html[data-theme^="lantern"] .sd-entry-name {
+  font-family: var(--font-serif);
+}
+html[data-theme^="lantern"] #sf-content h1,
+html[data-theme^="fig"] #sf-content h1 { font-size: clamp(28px, 4.2vw, 36px); line-height: 1.12; letter-spacing: -0.04em; }
+html[data-theme^="lantern"] #sf-content h2,
+html[data-theme^="fig"] #sf-content h2 { font-size: clamp(20px, 3vw, 26px); line-height: 1.2; letter-spacing: -0.03em; }
+html[data-theme^="lantern"] #sf-content h3,
+html[data-theme^="fig"] #sf-content h3 { font-size: 1.22rem; }
+html[data-theme^="lantern"] #sf-content h4,
+html[data-theme^="fig"] #sf-content h4 { font-size: 1.02rem; }
 html[data-theme^="fig"] body.sf-shell { font-family: 'Optima', 'Seravek', var(--font-sans); font-size: 16px; line-height: 1.72; }
 html[data-theme^="fig"] #sf-content h1, html[data-theme^="fig"] #sf-content h2,
 html[data-theme^="fig"] #sf-content h3, html[data-theme^="fig"] #sf-content h4 {
-  font-family: 'Optima', 'Seravek', var(--font-sans);
   font-weight: 600;
   letter-spacing: 0.01em;
 }
+html[data-theme^="fig"] .sd-lede, html[data-theme^="fig"] .sd-intro > p:first-child,
+html[data-theme^="fig"] .sd-entry-name {
+  font-family: var(--font-serif);
+}
 
-/* lantern + fig: zebra rows + hover ring, the lavish table treatment. */
+/* lantern + fig: zebra rows + hover ring, the lavish table treatment.
+   Panels keep a fill and an edge so periwinkle/sage actually reads. */
+html:is([data-theme^="lantern"], [data-theme^="fig"]) .sd-tablewrap {
+  background: var(--color-base-100);
+}
+html:is([data-theme^="lantern"], [data-theme^="fig"]) .sd-card {
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
 html:is([data-theme^="lantern"], [data-theme^="fig"]) #sf-content tbody tr:nth-child(even) {
   background: color-mix(in oklab, var(--color-base-content) 4.5%, transparent);
 }
@@ -224,11 +364,11 @@ html:is([data-theme^="lantern"], [data-theme^="fig"]) #sf-content tbody tr:hover
 body.sf-shell {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.68;
+  font-size: 14px;
+  line-height: 20px;
   /* explicit, not inherited: table cells do not pick up p/li color rules */
   color: var(--color-base-content);
-  background: var(--color-base-200);
+  background: var(--color-base-100);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -241,40 +381,40 @@ body.sf-shell {
   overflow-wrap: break-word;
 }
 
-/* Serif display against sans body, ~3x display-to-body, matching the reference. */
+/* Sans display against sans body. Lantern/fig override the face above. */
 #sf-content h1, #sf-content h2, #sf-content h3, #sf-content h4 {
   font-family: var(--font-serif);
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 590;
+  line-height: 1.25;
   margin: 0 0 0.5em;
   color: var(--color-base-content);
   text-wrap: balance;
 }
-#sf-content h1 { font-size: clamp(32px, 5.2vw, 46px); line-height: 1.08; letter-spacing: -0.015em; }
-#sf-content h2 { font-size: clamp(23px, 3.4vw, 30px); line-height: 1.18; letter-spacing: -0.01em; margin-top: 1.4em; }
-#sf-content h3 { font-size: 1.22rem; margin-top: 1.4em; }
-#sf-content h4 { font-size: 1.02rem; margin-top: 1.2em; }
+#sf-content h1 { font-size: 24px; line-height: 30px; letter-spacing: -0.02em; }
+#sf-content h2 { font-size: 18px; line-height: 24px; letter-spacing: -0.015em; margin-top: 1.4em; }
+#sf-content h3 { font-size: 16px; line-height: 22px; margin-top: 1.4em; }
+#sf-content h4 { font-size: 14px; line-height: 20px; margin-top: 1.2em; }
 /* The two tiers: prose recedes, emphasis is the only near-full-contrast text. */
 #sf-content p, #sf-content li { color: var(--color-body-content); }
-#sf-content strong, #sf-content b { color: var(--color-base-content); font-weight: 650; }
+#sf-content strong, #sf-content b { color: var(--color-base-content); font-weight: 590; }
 /* Accent text, not a fill. The UA default paints a yellow block that is
    unreadable on a dark ground, and its padding broke the line box. */
 #sf-content mark {
   display: inline;
   background: none;
-  color: var(--color-primary);
-  font-weight: 600;
+  color: var(--color-base-content);
+  font-weight: 590;
   padding: 0;
   border-radius: 0;
 }
-#sf-content p { margin: 0 0 0.9em; }
-#sf-content a { color: var(--color-primary); text-underline-offset: 2px; }
+#sf-content p { margin: 0 0 0.9em; text-wrap: pretty; }
+#sf-content a { color: var(--color-link, var(--color-primary)); text-underline-offset: 2px; }
 #sf-content ul, #sf-content ol { margin: 0 0 0.9em; padding-left: 1.4em; }
 #sf-content li { margin: 0.2em 0; }
 #sf-content blockquote {
   margin: 0 0 1em;
   padding: 2px 0 2px 14px;
-  border-left: 3px solid var(--border);
+  border-left: 1px solid var(--border);
   color: var(--color-muted-content);
 }
 #sf-content blockquote > :last-child { margin-bottom: 0; }
@@ -283,7 +423,7 @@ body.sf-shell {
    ground falls to 4.27:1 in dark, and any future muted wrapper would repeat it. */
 #sf-content code {
   font-family: var(--font-mono);
-  font-size: 0.88em;
+  font-size: 0.92em;
   color: var(--color-body-content);
   background: var(--color-base-300);
   padding: 0.12em 0.38em;
@@ -363,13 +503,13 @@ body.sf-shell {
   /* Hanging indent — wrapped prose lines align past the marker, not under it. */
   padding: 0 16px 0 calc(16px + 2ch);
   text-indent: -2ch;
-  color: var(--color-body-content);
-  border-left: 2px solid transparent;
+  color: var(--color-base-content);
+  border-left: 3px solid transparent;
 }
 .sd-diff-mark {
   display: inline-block;
   width: 2ch;
-  color: var(--color-muted-content);
+  color: var(--color-base-content);
   font-weight: 400;
 }
 .sd-diff-del { background: var(--diff-del-bg); border-left-color: var(--diff-del-edge); }
@@ -405,28 +545,23 @@ body.sf-shell {
 .sd-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .sd-col { display: flex; flex-direction: column; gap: var(--space); }
 
-/* Every wide table gets its own scroll container; the page body never scrolls
-   sideways. Templates always emit the wrapper. */
-/* The table draws its own edges; a wrapper border beside them reads as doubled. */
+/* Tables are a framed rounded shell. The wrapper is the only outer edge —
+   cell rules stay internal so the frame does not double. */
 .sd-tablewrap {
   overflow-x: auto;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   background: var(--color-base-100);
-  /* differ.js lists this painted-when-empty; with the border gone, height is what paints. */
   min-height: 2px;
 }
-/* Top edge here, not on th: collapse merges the two, so headerless tables still close. */
 .sd-tablewrap > table {
   border-collapse: collapse;
-  border-top: 1px solid var(--border);
+  border-top: 0;
   width: 100%;
   min-width: 480px;
 }
 #sf-content table { color: inherit; }
 #sf-content table tr { background-color: transparent; }
-/* Three weights, not one: a strong rule under the header, a lighter one between
-   rows, and no fill on the header — a flat grid of equal rules reads as noise. */
 .sd-tablewrap th, .sd-tablewrap td {
   text-align: left;
   padding: 12px 16px;
@@ -435,20 +570,18 @@ body.sf-shell {
   vertical-align: top;
 }
 .sd-tablewrap th {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0;
   color: var(--color-muted-content);
-  background: var(--color-base-200);
-  /* Rules above and below the header, and one closing the table, matching the
-     reference. The wrapper's own edge is not one of them — it can scroll away. */
-  border-top: 1px solid var(--border);
+  background: var(--color-base-100);
+  border-top: 0;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
 }
-.sd-tablewrap tr:last-child td { border-bottom: 1px solid var(--border); }
+.sd-tablewrap tr:last-child td { border-bottom: 0; }
 
 /* A pick row belongs to the content row above it: no separator between them,
    and its cells stay as short as their buttons. */
@@ -460,11 +593,42 @@ body.sf-shell {
 .sd-tablewrap td:has(> .sd-badge:only-child),
 .sd-tablewrap td:has(> .sd-tag:only-child),
 .sd-tablewrap td:has(> .sd-flag:only-child) { white-space: nowrap; width: 1%; }
+.sd-tablewrap td:has(> .sd-badge:only-child) > .sd-badge { white-space: nowrap; }
 
 /* Markdown column alignment. A class, not a style attribute — publish drops style. */
 .sd-tablewrap .sd-align-left   { text-align: left; }
 .sd-tablewrap .sd-align-center { text-align: center; }
 .sd-tablewrap .sd-align-right  { text-align: right; }
+
+.sd-tablewrap-striped tbody tr:nth-child(even) {
+  background: var(--fill, color-mix(in srgb, var(--color-base-content) 6%, transparent));
+}
+.sd-tablewrap tr.sd-row-success td:first-child,
+.sd-tablewrap tr.sd-row-warning td:first-child,
+.sd-tablewrap tr.sd-row-error td:first-child,
+.sd-tablewrap tr.sd-row-danger td:first-child,
+.sd-tablewrap tr.sd-row-info td:first-child {
+  padding-left: 28px;
+  position: relative;
+}
+.sd-tablewrap tr.sd-row-success td:first-child::before,
+.sd-tablewrap tr.sd-row-warning td:first-child::before,
+.sd-tablewrap tr.sd-row-error td:first-child::before,
+.sd-tablewrap tr.sd-row-danger td:first-child::before,
+.sd-tablewrap tr.sd-row-info td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 1.15em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.sd-tablewrap tr.sd-row-success td:first-child::before { background: var(--color-success); }
+.sd-tablewrap tr.sd-row-warning td:first-child::before { background: var(--color-warning); }
+.sd-tablewrap tr.sd-row-error td:first-child::before,
+.sd-tablewrap tr.sd-row-danger td:first-child::before { background: var(--color-error); }
+.sd-tablewrap tr.sd-row-info td:first-child::before { background: var(--color-info); }
 
 /* ------------------------------------------------------------ components -- */
 
@@ -476,11 +640,24 @@ body.sf-shell {
   background: var(--color-base-100);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-card);
+  padding: 16px;
+  box-shadow: none;
   min-width: 0;
 }
-.sd-card-title { font-weight: 650; margin: 0 0 6px; font-size: 1.02rem; }
+.sd-card-title {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  margin: -16px -16px 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--color-base-content) 6%, transparent);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-body-content);
+}
 /* Carried on the id so it outranks `#sf-content p`, and applied to descendants
    because a muted wrapper around markdown holds <p>, not text. */
 .sd-muted,
@@ -499,22 +676,32 @@ body.sf-shell {
 .sd-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  min-height: 0;
-  padding: 1px 9px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.4;
-  border: 1px solid var(--color-base-content);
-  background: var(--color-base-100);
+  gap: 6px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  border: 1px solid var(--border);
+  background: transparent;
   color: var(--color-base-content);
-  /* A label is one token. Wrapping split words mid-character ("Vacuou s
-     green"), which reads as a blob rather than a status. */
-  white-space: nowrap;
+  /* break-word, not anywhere: a status must not split mid-character
+     ("Vacuou s green"). Hyphenated labels wrap at the hyphens. */
+  overflow-wrap: break-word;
 }
 /* Two-voice pill: a filled mono key segment beside a weighted value. */
-.sd-badge:has(.sd-badge-key) { padding: 0; gap: 0; overflow: hidden; }
+.sd-badge:has(.sd-badge-key) {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
 .sd-badge-key {
   display: inline-flex;
   align-items: center;
@@ -531,10 +718,30 @@ body.sf-shell {
 .sd-badge-value { padding: 1px 10px 1px 9px; }
 /* Status colors are solid fills, never a translucent tint over an unknown
    backdrop — stacked opacity is what produced the unreadable-contrast page. */
-.sd-badge-success { background: var(--color-success); color: var(--color-status-content); border-color: transparent; }
-.sd-badge-warning { background: var(--color-warning); color: var(--color-status-content); border-color: transparent; }
-.sd-badge-error   { background: var(--color-error);   color: var(--color-status-content); border-color: transparent; }
-.sd-badge-info    { background: var(--color-info);    color: var(--color-status-content); border-color: transparent; }
+/* Pills ignore tone. Status is a category dot, not a candy fill. */
+.sd-badge-success,
+.sd-badge-warning,
+.sd-badge-error,
+.sd-badge-info {
+  background: transparent;
+  color: var(--color-base-content);
+  border-color: var(--border);
+}
+.sd-badge-success::before,
+.sd-badge-warning::before,
+.sd-badge-error::before,
+.sd-badge-info::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+.sd-badge-success::before { background: var(--color-success); }
+.sd-badge-warning::before { background: var(--color-warning); }
+.sd-badge-error::before { background: var(--color-error); }
+.sd-badge-info::before { background: var(--color-info); }
+.sd-badge:has(.sd-badge-key)::before { display: none; }
 /* A two-voice status pill carries its colour on the key segment only. */
 .sd-badge-success:has(.sd-badge-key),
 .sd-badge-warning:has(.sd-badge-key),
@@ -551,15 +758,20 @@ body.sf-shell {
 
 .sd-metrics { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); }
 .sd-metric {
-  background: var(--color-base-100);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 0;
   min-width: 0;
 }
-.sd-metric-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted-content); }
-.sd-metric-value { font-size: 1.6rem; font-weight: 660; line-height: 1.2; margin-top: 4px; overflow-wrap: anywhere; }
-.sd-metric-note { font-size: 0.82rem; color: var(--color-muted-content); margin-top: 2px; }
+.sd-metric-label { font-size: 12px; font-weight: 400; line-height: 16px; letter-spacing: 0; color: var(--color-muted-content); }
+.sd-metric-value { font-size: 24px; font-weight: 590; line-height: 30px; margin-top: 0; overflow-wrap: anywhere; }
+.sd-metric-note { font-size: 12px; line-height: 16px; color: var(--color-muted-content); margin-top: 2px; }
+.sd-metric-success .sd-metric-value { color: var(--color-success); }
+.sd-metric-warning .sd-metric-value { color: var(--color-warning); }
+.sd-metric-error .sd-metric-value,
+.sd-metric-danger .sd-metric-value { color: var(--color-error); }
+.sd-metric-info .sd-metric-value { color: var(--color-info); }
 
 /* ------------------------------------------------- editorial structure -- */
 
@@ -568,17 +780,17 @@ body.sf-shell {
    An .sd-intro block gets it on its first paragraph without the author asking. */
 .sd-lede,
 .sd-intro > p:first-child {
-  font-family: var(--font-serif);
-  font-size: clamp(17px, 2.4vw, 20px);
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 22px;
   color: var(--color-base-content);
 }
-.sd-intro { font-size: 1.04rem; }
+.sd-intro { font-size: 14px; }
 
-.sd-section { margin: 0 0 52px; }
-.sd-section > h2 { padding-top: 40px; border-top: var(--rule); }
+.sd-section { margin: 0 0 24px; }
+.sd-section > h2 { padding-top: 24px; border-top: var(--rule); }
 .sd-section:first-of-type > h2 { padding-top: 0; border-top: 0; }
-.sd-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin: 0 0 26px; }
+.sd-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0; margin: 0 0 26px; }
 
 /* Section number, mono accent — sits with the heading, carries no link. */
 .sd-secnum {
@@ -591,14 +803,11 @@ body.sf-shell {
   vertical-align: 0.22em;
 }
 
-/* Eyebrow: a mono uppercase kicker. It labels, so it carries no fill and no
-   status colour — a filled treatment here would read as a badge. */
 .sd-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0;
   color: var(--color-muted-content);
   margin: 0 0 8px;
 }
@@ -732,7 +941,7 @@ body.sf-shell {
   box-shadow: none;
   min-width: 0;
 }
-.sd-entry-name { font-family: var(--font-serif); font-size: 1.28rem; line-height: 1.25; color: var(--color-base-content); }
+.sd-entry-name { font-family: var(--font-sans); font-size: 1.2rem; line-height: 1.25; letter-spacing: -0.016em; color: var(--color-base-content); }
 .sd-entry-meta { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; margin: 4px 0 18px; min-width: 0; }
 .sd-entry-meta > * { min-width: 0; }
 
@@ -774,45 +983,78 @@ body.sf-shell {
    colours are sized for a short pill, not a paragraph of text on a fill. */
 
 .sd-callout {
-  padding: 14px 18px;
-  margin: 0 0 18px;
-  border: var(--rule);
-  /* Accent rides the top edge: a coloured left bar means a round-diff mark. */
-  border-top: 3px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-  background: var(--color-base-100);
+  position: relative;
+  padding: 10px 12px 10px 36px;
+  margin: 0 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-base-content) 8%, var(--color-base-100));
   color: var(--color-body-content);
   min-width: 0;
 }
+.sd-callout::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-muted-content);
+  -webkit-mask: var(--sf-callout-info) no-repeat center / 14px 14px;
+  mask: var(--sf-callout-info) no-repeat center / 14px 14px;
+}
 .sd-callout > :last-child { margin-bottom: 0; }
 .sd-callout-title {
-  font-weight: 640;
+  font-weight: 590;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--color-base-content);
   margin-bottom: 4px;
 }
-.sd-callout-info    { border-top-color: var(--color-info); }
-.sd-callout-success { border-top-color: var(--color-success); }
-.sd-callout-warning { border-top-color: var(--color-warning); }
-.sd-callout-error   { border-top-color: var(--color-error); }
+.sd-callout-info {
+  background: color-mix(in srgb, var(--color-info) 10%, var(--color-base-100));
+}
+.sd-callout-success {
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-base-100));
+}
+.sd-callout-warning {
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-base-100));
+}
+.sd-callout-error {
+  background: color-mix(in srgb, var(--color-error) 10%, var(--color-base-100));
+}
+.sd-callout-info::before { background: var(--color-info); }
+.sd-callout-success::before {
+  background: var(--color-success);
+  -webkit-mask-image: var(--sf-callout-success);
+  mask-image: var(--sf-callout-success);
+}
+.sd-callout-warning::before {
+  background: var(--color-warning);
+  -webkit-mask-image: var(--sf-callout-warning);
+  mask-image: var(--sf-callout-warning);
+}
+.sd-callout-error::before {
+  background: var(--color-error);
+  -webkit-mask-image: var(--sf-callout-error);
+  mask-image: var(--sf-callout-error);
+}
 
 /* The board's "What this is" block: a callout's box, info accent, sat between
    the summary and the first section so the work is read before any ask. */
 .sd-about {
-  padding: 14px 18px;
-  margin: 0 0 22px;
+  padding: 16px;
+  margin: 0 0 24px;
   border: var(--rule);
-  border-top: 3px solid var(--color-info);
-  border-radius: var(--radius-sm);
-  background: var(--color-base-100);
+  border-radius: var(--radius-md);
+  background: var(--color-base-200);
   color: var(--color-body-content);
 }
 .sd-about > :last-child { margin-bottom: 0; }
-.sd-about-title { font-weight: 640; color: var(--color-base-content); margin-bottom: 4px; }
+.sd-about-title { font-weight: 590; color: var(--color-base-content); margin-bottom: 4px; }
 
-/* An opt-in edge for telling one entry from the next. Colour rides the border
-   only — a tinted fill would move every contrast pair inside the card. */
-.sd-accent { border-left: 3px solid var(--color-primary); }
-.sd-accent-alt { border-left: 3px solid var(--color-accent-2); }
+/* sd-accent / sd-accent-alt used to be a 3px left bar. That shape is reserved
+   for round-diff marks. The classes stay in markup; they must not strip a frame. */
 
 /* ----------------------------------------------------------- citations -- */
 /* A left gutter carries date and source; the content sits beside it, so the
@@ -841,8 +1083,7 @@ body.sf-shell {
 .sd-cite-date { display: block; }
 .sd-cite-label {
   display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0;
   color: var(--color-primary);
   overflow-wrap: anywhere;
 }
@@ -866,22 +1107,33 @@ details.sd-collapse {
 }
 details.sd-collapse > summary {
   cursor: pointer;
-  padding: 11px 16px;
-  font-weight: 600;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 16px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-body-content);
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   min-width: 0;
 }
-details.sd-collapse > summary::-webkit-details-marker { display: none; }
-details.sd-collapse > summary::before {
-  content: "▸";
-  color: var(--color-muted-content);
-  transition: transform 0.15s;
+details.sd-collapse > summary::-webkit-details-marker,
+details.sd-collapse > summary::marker { display: none; content: none; }
+details.sd-collapse > summary::after {
+  content: "";
   flex: none;
+  width: 12px;
+  height: 12px;
+  background: var(--color-muted-content);
+  -webkit-mask: var(--sf-chevron) no-repeat center / 12px 12px;
+  mask: var(--sf-chevron) no-repeat center / 12px 12px;
+  transition: transform var(--dur-quick) var(--ease-out);
 }
-details.sd-collapse[open] > summary::before { transform: rotate(90deg); }
+details.sd-collapse[open] > summary::after { transform: rotate(180deg); }
 .sd-collapse-body { padding: 0 16px 16px; border-top: 1px solid var(--border); padding-top: 14px; }
 
 .sd-section { margin: 0 0 28px; }
@@ -1055,16 +1307,18 @@ details.sd-collapse[open] > summary::before { transform: rotate(90deg); }
 [data-widget].sd-widget-compact { border-top: 0; padding: 0; margin: 6px 0 2px; }
 .sd-widget-compact .sd-widget-options { gap: 6px; }
 .sd-widget-compact [data-option] {
+  box-sizing: border-box;
   font-size: 0.78rem;
   font-weight: 500;
-  padding: 3px 10px;
-  min-height: 1.5rem;
-  border-width: 1px;
-  border-color: var(--color-muted-content);
-  color: var(--color-muted-content);
-  background: none;
+  line-height: 1;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  color: var(--color-body-content);
+  background: var(--color-base-200);
 }
-.sd-widget-compact [data-option]:hover { background: var(--color-base-content); color: var(--color-base-100); }
+.sd-widget-compact [data-option]:hover { background: var(--fill-hover); color: var(--color-base-content); }
 .sd-widget-compact.sf-recorded [data-option][aria-pressed="true"],
 .sd-widget-compact.sf-recorded [data-option].sf-chosen { color: inherit; }
 
@@ -1073,20 +1327,23 @@ details.sd-collapse[open] > summary::before { transform: rotate(90deg); }
   /* Pinned, not inherited: `font: inherit` alone lets any mono ancestor in the
      content turn a decision control into what reads as a code sample. */
   font-family: var(--font-sans);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
   cursor: pointer;
-  padding: 8px 16px;
-  min-height: 2.25rem;
-  border-radius: 4px;
-  border: 1.5px solid var(--color-base-content);
+  padding: 0 8px;
+  min-height: 24px;
+  height: 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   background: var(--color-base-200);
   color: var(--color-base-content);
   max-width: 100%;
   overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
-[data-option]:hover { background: var(--color-base-content); color: var(--color-base-100); border-color: var(--color-base-content); }
-[data-option]:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+[data-option]:hover { background: var(--fill-hover); color: var(--color-base-content); border-color: var(--border); }
+[data-option]:focus-visible { outline: 2px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
 
 /* Recorded state: the widget holds a queued (or sent) value. */
 [data-widget].sf-recorded { border-color: var(--color-primary); }
@@ -1147,7 +1404,7 @@ button.sf-marker {
   font-size: 0.58rem;
   cursor: pointer;
 }
-button.sf-marker:hover { filter: brightness(1.12); }
+button.sf-marker:hover { outline: 1px solid var(--color-focus, var(--color-primary)); outline-offset: 1px; }
 /* The panel's copy of the same id — inline here, where it labels its row. */
 .sf-item-marker {
   display: inline-block;
@@ -1277,45 +1534,99 @@ button.sf-marker:hover { filter: brightness(1.12); }
   top: 0;
   z-index: var(--chrome-z);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-base-content);
 }
 /* Component rules below set explicit display, which would otherwise beat the
    UA's [hidden] rule and strand a hidden element visible. */
 [hidden] { display: none !important; }
 
-#sf-chrome button { font: inherit; cursor: pointer; }
-#sf-chrome :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+#sf-chrome button { cursor: pointer; }
+#sf-chrome :focus-visible { outline: 2px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
+#sf-chrome .sf-popover-text:focus-visible,
+#sf-chrome .sf-chat-input:focus-visible { outline: none; }
 
 .sf-topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 9px 16px;
+  gap: 0;
+  flex-wrap: nowrap;
+  padding: 0 8px;
+  min-height: 36px;
+  height: 36px;
   min-width: 0;
-  background: var(--color-base-100);
+  background: var(--color-base-200);
   border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.sf-brand { font-weight: 700; letter-spacing: -0.01em; color: var(--color-base-content); text-decoration: none; flex: none; }
-/* Basis 0, not auto: a wrap container measures children at max-content and
-   breaks the line before it shrinks anything, so an auto basis let a long title
-   exile the last buttons to a second row it could have made room for. At 0 the
-   title gives up its width first, and the bar wraps only when the controls
-   alone overflow. */
-.sf-title { font-weight: 560; color: var(--color-muted-content); flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-topbar::-webkit-scrollbar { display: none; }
+.sf-brand {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-base-content);
+  text-decoration: none;
+  flex: none;
+  padding: 0 4px;
+}
+.sf-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 0;
+  padding-right: 12px;
+}
+.sf-title {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted-content);
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sf-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  height: 24px;
+  padding: 0 10px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.sf-key {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-muted-content);
+  opacity: 0.7;
+}
 
 .sf-wip-marker {
   flex: none;
-  font-size: 0.76rem;
-  font-weight: 620;
-  padding: 2px 9px;
-  min-height: 1.5rem;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0 8px;
+  min-height: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
+  gap: 6px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--color-base-content);
+}
+.sf-wip-marker::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--color-warning);
-  color: var(--color-status-content);
 }
 
 .sf-agent { display: inline-flex; align-items: center; gap: 7px; flex: none; color: var(--color-muted-content); font-size: 0.85rem; }
@@ -1328,20 +1639,40 @@ button.sf-marker:hover { filter: brightness(1.12); }
   border-top-color: transparent;
   animation: sf-spin 0.8s linear infinite;
 }
+/* A listener that died without collecting. Still, not spinning: nothing is in
+   flight, and the feedback keeps queueing for the next attach. */
+.sf-agent.sf-agent-lost { color: var(--color-base-content); }
+.sf-agent.sf-agent-lost::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--color-error);
+  flex: none;
+}
 @keyframes sf-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .sf-agent.sf-agent-waiting::before { animation-duration: 3s; }
+  .sf-toast { animation: none; }
+  details.sd-collapse > summary::after,
+  .sf-sec-toggle { transition: none; }
+  #sf-chrome button, .sf-popover { transition: none; animation: none; }
 }
 button.sf-cancel-wait {
-  border: 1px solid var(--border);
-  background: var(--color-base-200);
-  color: var(--color-base-content);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted-content);
   border-radius: var(--radius-sm);
-  padding: 3px 9px;
-  min-height: 1.75rem;
-  font-size: 0.8rem;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1;
 }
-button.sf-cancel-wait:hover { border-color: var(--color-error); color: var(--color-error); }
+button.sf-cancel-wait:hover { color: var(--color-error); background: var(--fill-hover); }
 
 .sf-status { display: inline-flex; align-items: center; gap: 6px; flex: none; font-size: 0.82rem; color: var(--color-muted-content); }
 .sf-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-muted-content); flex: none; }
@@ -1349,73 +1680,191 @@ button.sf-cancel-wait:hover { border-color: var(--color-error); color: var(--col
 .sf-status-dot.sf-reconnecting { background: var(--color-warning); animation: sf-pulse 1.2s ease-in-out infinite; }
 @keyframes sf-pulse { 50% { opacity: 0.3; } }
 
-/* The panel launchers shipped unstyled and rendered as native buttons next to
-   themed ones; they take the same treatment. */
-button.sf-theme-toggle,
+.sf-actions > button,
 button.sf-annotate-toggle,
 button.sf-queue-toggle,
-button.sf-chat-toggle {
+button.sf-chat-toggle,
+button.sf-end-session,
+button.sf-send-now {
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
   border: 1px solid var(--border);
   background: var(--color-base-200);
   color: var(--color-base-content);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
-  min-height: 2rem;
-  font-weight: 560;
+  border-radius: var(--radius-md);
+  padding: 0 8px;
+  min-height: 24px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
 }
-button.sf-annotate-toggle.sf-on { background: var(--color-primary); color: var(--color-primary-content); border-color: transparent; }
-button.sf-queue-toggle.sf-on, button.sf-chat-toggle.sf-on { border-color: var(--color-primary); color: var(--color-primary); }
-/* An empty queue's badge competed with the live controls for attention. */
-button.sf-queue-toggle.sf-empty .sf-queue-count {
-  background: none;
-  color: var(--color-muted-content);
-  border: 1px solid var(--border);
-  font-weight: 600;
+.sf-actions > button:hover,
+button.sf-annotate-toggle:hover,
+button.sf-queue-toggle:hover,
+button.sf-chat-toggle:hover,
+button.sf-end-session:hover {
+  background: var(--fill-hover);
+  color: var(--color-base-content);
+}
+button.sf-annotate-toggle.sf-on {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  border-color: var(--color-primary);
+}
+button.sf-annotate-toggle.sf-on .sf-key {
+  color: inherit;
+  opacity: 0.7;
 }
 /* Page-width control: slider drives --content-max live, E/R nudge it,
    double-click resets. */
-.sf-width { display: inline-flex; align-items: center; gap: 5px; flex: none; }
-input.sf-width-slider { flex: none; width: 90px; accent-color: var(--color-primary); cursor: ew-resize; }
+.sf-width { display: inline-flex; align-items: center; gap: 6px; flex: 1; min-width: 0; height: 24px; }
+.sf-tuner .sf-width { justify-content: flex-end; }
+input.sf-width-slider,
+input.sf-tuner-range {
+  flex: none;
+  height: 16px;
+  margin: 0;
+  cursor: ew-resize;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+input.sf-width-slider { width: 72px; }
+input.sf-tuner-range { width: 120px; }
+input.sf-width-slider::-webkit-slider-runnable-track,
+input.sf-tuner-range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 99px;
+  background: var(--fill);
+}
+input.sf-width-slider::-webkit-slider-thumb,
+input.sf-tuner-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--color-muted-content);
+}
+input.sf-width-slider::-moz-range-track,
+input.sf-tuner-range::-moz-range-track {
+  height: 3px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--fill);
+}
+input.sf-width-slider::-moz-range-thumb,
+input.sf-tuner-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-muted-content);
+}
 .sf-width-keys {
   font-family: var(--font-mono);
   font-size: 11px;
+  line-height: 1;
   color: var(--color-muted-content);
   cursor: default;
 }
-
-/* Theme picker: family buttons at the left end of the topbar; the gear opens
-   the tuner popup. */
-.sf-theme-pick { display: inline-flex; align-items: center; gap: 2px; flex: none; }
-button.sf-theme-pick-btn, button.sf-tuner-toggle {
-  border: 1px solid transparent;
-  background: none;
+button.sf-width-reset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--color-muted-content);
-  border-radius: var(--radius-sm);
-  padding: 3px 8px;
+  font: inherit;
   font-size: 12px;
-  cursor: pointer;
 }
-button.sf-theme-pick-btn:hover, button.sf-tuner-toggle:hover { color: var(--color-base-content); }
+button.sf-width-reset:hover { color: var(--color-base-content); }
+
+.sf-theme-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  height: 24px;
+  padding: 0 4px 0 10px;
+}
+.sf-theme-pick {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  flex: none;
+  height: 24px;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--fill);
+}
+button.sf-theme-pick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted-content);
+  border-radius: 6px;
+  padding: 0 10px;
+  min-height: 0;
+  height: auto;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+button.sf-theme-pick-btn:hover { color: var(--color-base-content); background: var(--fill-hover); }
 button.sf-theme-pick-btn.sf-on {
-  border-color: var(--border);
   background: var(--color-base-100);
   color: var(--color-base-content);
 }
-button.sf-tuner-toggle { padding: 3px 6px; }
-button.sf-tuner-toggle.sf-on { color: var(--color-primary); }
+button.sf-theme-toggle,
+button.sf-tuner-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted-content);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+button.sf-tuner-toggle {
+  width: 24px;
+  padding: 0;
+}
+button.sf-tuner-toggle svg { display: block; }
+button.sf-theme-toggle:hover,
+button.sf-tuner-toggle:hover,
+button.sf-tuner-toggle.sf-on {
+  background: var(--fill-hover);
+  color: var(--color-base-content);
+}
 
-/* Theme tuner popup (gear button, or ?tuner=1 to open on load). */
+/* Theme tuner popup (?tuner=1 to open on load). */
 .sf-tuner {
   display: none;
   position: fixed;
-  top: 70px;
-  right: 14px;
+  top: 44px;
+  right: 16px;
+  left: auto;
   z-index: var(--chrome-z);
-  width: 210px;
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100vh - 60px);
+  overflow: auto;
   padding: 12px 14px;
   background: var(--color-base-100);
   border: 1px solid var(--border);
@@ -1424,58 +1873,81 @@ button.sf-tuner-toggle.sf-on { color: var(--color-primary); }
   font-size: 12.5px;
   color: var(--color-base-content);
 }
+.sf-tuner .sf-theme-pick {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: stretch;
+}
+.sf-tuner button.sf-theme-pick-btn {
+  flex: 1 1 0;
+  padding: 0 6px;
+}
 .sf-tuner.sf-open { display: block; }
 .sf-tuner-title { font-weight: 650; margin-bottom: 8px; }
 .sf-tuner-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   margin: 5px 0;
   color: var(--color-body-content);
+  white-space: nowrap;
 }
 input.sf-tuner-color { width: 34px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 4px; background: none; flex: none; }
-select.sf-tuner-select { max-width: 118px; font-size: 11.5px; }
-input.sf-tuner-range { width: 110px; accent-color: var(--color-primary); }
+select.sf-tuner-select {
+  max-width: 168px;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  font: inherit;
+  font-size: 12px;
+}
 .sf-tuner-actions { display: flex; gap: 8px; margin-top: 10px; }
 button.sf-tuner-send, button.sf-tuner-reset {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   border: 1px solid var(--border);
   background: var(--color-base-200);
   color: var(--color-base-content);
   border-radius: var(--radius-sm);
-  padding: 5px 8px;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1;
 }
-button.sf-tuner-send { background: var(--color-primary); color: var(--color-primary-content); border-color: transparent; }
+button.sf-tuner-send {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  border-color: var(--color-primary);
+}
 
 /* Drafts are only sendable from inside the panel, which is closed by default —
    this surfaces the action in the topbar whenever drafts exist. */
 button.sf-send-now {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
-  min-height: 2rem;
-  font-weight: 640;
   background: var(--color-primary);
   color: var(--color-primary-content);
+  border-color: var(--color-primary);
+  font-weight: 600;
 }
-button.sf-send-now:hover { filter: brightness(1.06); }
+button.sf-send-now:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
 
-button.sf-end-session {
-  flex: none;
-  border: 1px solid var(--border);
-  background: var(--color-base-200);
-  color: var(--color-muted-content);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
-  min-height: 2rem;
-  font-weight: 560;
+button.sf-end-session:hover {
+  color: var(--color-error);
+  background: var(--fill-hover);
+  border-color: var(--color-error);
 }
-button.sf-end-session:hover { border-color: var(--color-error); color: var(--color-error); }
 
 /* rounds ---------------------------------------------------------------- */
 
@@ -1484,9 +1956,9 @@ button.sf-end-session:hover { border-color: var(--color-error); color: var(--col
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 9px 16px;
+  padding: 4px 8px;
   min-width: 0;
-  background: var(--color-base-100);
+  background: var(--color-base-200);
   border-bottom: 1px solid var(--border);
 }
 /* Scrolls instead of wrapping, so sixty rounds still spend one line on the
@@ -1506,18 +1978,30 @@ button.sf-end-session:hover { border-color: var(--color-error); color: var(--col
 }
 .sf-round-strip::-webkit-scrollbar { display: none; }
 .sf-round-strip.sf-expanded { flex-wrap: wrap; overflow-x: visible; row-gap: 6px; flex-basis: 100%; }
-button.sf-rounds-expand {
+button.sf-rounds-expand,
+button.sf-round-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   border: 1px solid var(--border);
   background: transparent;
-  color: var(--color-muted-content);
-  border-radius: 999px;
-  padding: 3px 12px;
-  min-height: 1.85rem;
-  font-size: 0.78rem;
-  font-weight: 600;
+  color: var(--color-base-content);
+  border-radius: 9999px;
+  padding: 0 8px;
+  min-height: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
   flex: none;
 }
-button.sf-rounds-expand:hover { color: var(--color-base-content); border-color: var(--color-primary); }
+button.sf-rounds-expand { color: var(--color-muted-content); }
+button.sf-rounds-expand:hover,
+button.sf-round-pill:hover {
+  background: var(--fill-hover);
+  color: var(--color-base-content);
+}
 
 .sf-round-note {
   flex-basis: 100%;
@@ -1541,19 +2025,12 @@ button.sf-rounds-expand:hover { color: var(--color-base-content); border-color: 
   cursor: default;
   flex: none;
 }
-button.sf-round-pill {
-  border: 1px solid var(--border);
-  background: var(--color-base-200);
+button.sf-round-pill.sf-round-current,
+button.sf-round-pill.sf-round-active {
+  background: var(--fill-active);
   color: var(--color-base-content);
-  border-radius: 999px;
-  padding: 3px 12px;
-  min-height: 1.85rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  flex: none;
+  border-color: var(--border);
 }
-button.sf-round-pill.sf-round-current { border-color: var(--color-primary); }
-button.sf-round-pill.sf-round-active { background: var(--color-primary); color: var(--color-primary-content); border-color: transparent; }
 
 .sf-diff-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-left: auto; font-size: 0.78rem; color: var(--color-muted-content); min-width: 0; }
 .sf-diff-legend > * { display: inline-flex; align-items: center; gap: 5px; }
@@ -1673,55 +2150,59 @@ button.sf-chrome-toggle.sf-on { transform: rotate(180deg); }
 
 /* side panels ----------------------------------------------------------- */
 
-.sf-queue, .sf-chat {
+.sf-queue {
   position: fixed;
-  bottom: 0;
-  width: min(380px, 100vw);
-  max-height: 70vh;
+  bottom: 16px;
+  right: 16px;
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 60px);
   flex-direction: column;
   background: var(--color-base-100);
   border: 1px solid var(--border);
-  border-bottom: 0;
-  border-radius: var(--radius) var(--radius) 0 0;
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius);
+  box-shadow: none;
   z-index: 4;
   /* Closed panels are display:none, not translated off-canvas: a parked panel
      still reads as clipped content to a layout audit. */
   display: none;
 }
-.sf-queue { right: 16px; }
-.sf-chat { right: 412px; }
-/* Below 900px there is no room for two side-by-side panels, so they stack:
-   chat above, queue below, each capped so both stay fully readable. */
-@media (max-width: 900px) {
-  .sf-queue, .sf-chat { width: calc(100vw - 32px); max-height: 42vh; }
-  .sf-chat { right: 16px; bottom: calc(42vh + 8px); }
-}
-.sf-queue.sf-open, .sf-chat.sf-open { display: flex; }
+.sf-queue.sf-open { display: flex; }
 
 .sf-queue-header, .sf-chat-log { min-width: 0; }
-.sf-queue-header, .sf-chat-header {
+.sf-queue-header {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 11px 14px;
-  font-weight: 640;
+  font-weight: 600;
   border-bottom: 1px solid var(--border);
 }
 .sf-queue-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: var(--color-primary-content);
-  font-size: 0.76rem;
-  font-weight: 700;
+  min-width: 18px;
+  min-height: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: var(--fill-active);
+  color: var(--color-base-content);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-.sf-queue-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.sf-queue-list {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 .sf-queue-item {
   border: 1px solid var(--border);
@@ -1731,10 +2212,7 @@ button.sf-chrome-toggle.sf-on { transform: rotate(180deg); }
   min-width: 0;
   position: relative;
 }
-/* Border-left carries state, background carries kind — a widget row has both
-   classes, so sharing one property would hide draft-vs-sent on widgets. */
-.sf-item-draft     { border-left: 3px solid var(--color-warning); padding-right: 42px; }
-.sf-item-submitted { border-left: 3px solid var(--color-success); }
+.sf-item-draft     { padding-right: 42px; }
 .sf-item-widget    { background: var(--color-base-300); }
 .sf-item-excerpt {
   font-size: 0.8rem;
@@ -1748,98 +2226,224 @@ button.sf-chrome-toggle.sf-on { transform: rotate(180deg); }
   overflow-wrap: anywhere;
 }
 .sf-item-comment { margin-top: 5px; overflow-wrap: anywhere; }
-.sf-item-round { font-size: 0.72rem; font-weight: 700; color: var(--color-muted-content); text-transform: uppercase; }
+.sf-item-round { font-size: 0.72rem; font-weight: 500; color: var(--color-muted-content); }
 /* Reads as a button, not a glyph: the bare × was mistaken for decoration and
    left users believing queued feedback could not be removed. */
-button.sf-item-remove, button.sf-draft-remove {
+button.sf-item-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--border);
   background: var(--color-base-100);
   color: var(--color-muted-content);
-  line-height: 1;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  line-height: 0;
 }
-button.sf-item-remove:hover, button.sf-draft-remove:hover {
+button.sf-item-remove svg { display: block; }
+button.sf-item-remove:hover {
   color: var(--color-status-content);
   background: var(--color-error);
   border-color: transparent;
 }
-button.sf-item-remove {
-  position: absolute;
-  top: 6px; right: 6px;
-  font-size: 0.95rem;
-  padding: 3px 7px;
-}
 
 button.sf-queue-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
   margin: 8px;
-  padding: 9px 14px;
-  min-height: 2.4rem;
-  border: 0;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
   background: var(--color-primary);
   color: var(--color-primary-content);
-  font-weight: 640;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
 }
 button.sf-queue-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.sf-chat-log { overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
-.sf-chat-msg { padding: 8px 11px; border-radius: var(--radius); max-width: 85%; overflow-wrap: anywhere; }
-.sf-msg-user  { align-self: flex-end; background: var(--color-primary); color: var(--color-primary-content); }
-.sf-msg-agent { align-self: flex-start; background: var(--color-base-200); border: 1px solid var(--border); }
-/* Several agents can share one board's chat, so a bubble names its author. */
+/* Chat: thread drawer tucked under a pill composer, same stack as MRI Ask. */
+.sf-chat {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 4;
+  width: min(420px, calc(100vw - 32px));
+  display: none;
+  flex-direction: column;
+}
+.sf-chat.sf-open { display: flex; }
+.sf-queue.sf-open ~ .sf-chat { right: 412px; }
+@media (max-width: 900px) {
+  .sf-queue { width: calc(100vw - 32px); max-height: 42vh; }
+  .sf-chat,
+  .sf-queue.sf-open ~ .sf-chat { right: 16px; left: 16px; width: auto; }
+  /* Original stacked chat above the queue so both stay readable. 32px is
+     the queue's 16px inset plus a gap; the drawer caps so it cannot run
+     through the topbar once the panel is lifted. */
+  .sf-queue.sf-open ~ .sf-chat { bottom: calc(42vh + 32px); }
+  .sf-queue.sf-open ~ .sf-chat .sf-chat-drawer { max-height: 42vh; }
+}
+
+.sf-chat-drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  /* Midline of the 48px pill. Extra bottom padding is the height; the tuck
+     spends it downward so the thread is taller and sits behind the bar. */
+  margin-bottom: -24px;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 60vh;
+  overflow: hidden;
+  padding: 8px 8px 52px;
+  background: var(--color-base-200);
+  border: 0;
+  border-radius: 12px 12px 0 0;
+}
+.sf-chat-header { display: flex; align-items: center; gap: 8px; flex: none; }
+.sf-chat-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+button.sf-chat-close {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted-content);
+}
+button.sf-chat-close:hover { background: var(--fill-hover); color: var(--color-base-content); }
+
+.sf-chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+.sf-chat-log:empty { display: none; }
+.sf-chat-msg { max-width: 85%; overflow-wrap: anywhere; }
+.sf-msg-user {
+  align-self: flex-end;
+  background: var(--fill-active);
+  color: var(--color-base-content);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+.sf-msg-agent {
+  align-self: flex-start;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-base-content);
+}
 .sf-msg-agent-id {
   display: block;
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-muted-content);
   margin-bottom: 3px;
 }
 
-.sf-chat-working { display: flex; align-items: center; gap: 9px; padding: 8px 12px; color: var(--color-muted-content); font-size: 0.85rem; }
-.sf-chat-working::before {
-  content: "";
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  border: 2px solid var(--color-primary);
-  border-top-color: transparent;
-  animation: sf-spin 0.8s linear infinite;
-  flex: none;
+.sf-chat-working {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-muted-content);
+  font-size: 13px;
+  font-weight: 500;
 }
 button.sf-chat-cancel {
-  border: 1px solid var(--border);
-  background: none;
-  color: var(--color-muted-content);
-  border-radius: var(--radius-sm);
-  padding: 2px 9px;
-  min-height: 1.7rem;
-  font-size: 0.8rem;
-}
-button.sf-chat-cancel:hover { color: var(--color-error); border-color: var(--color-error); }
-
-.sf-chat-form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--border); min-width: 0; }
-.sf-chat-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  font: inherit;
-  resize: vertical;
-  min-height: 2.5rem;
-  max-height: 8rem;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--color-base-200);
-  color: var(--color-base-content);
-}
-button.sf-chat-submit {
-  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted-content);
+  font-size: 12px;
+  font-weight: 500;
+}
+button.sf-chat-cancel:hover { color: var(--color-error); background: var(--fill-hover); }
+
+.sf-chat-form {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--color-base-100);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 8px;
+}
+.sf-chat-form-tall { border-radius: 16px; }
+.sf-chat-form-tall .sf-chat-input { flex: 1 1 100%; order: -1; }
+.sf-chat-form:focus-within { border-color: color-mix(in oklab, var(--color-base-content) 28%, var(--border)); }
+html:is([data-theme^="lantern"], [data-theme^="fig"]) .sf-chat-form { box-shadow: var(--shadow-card); }
+.sf-chat-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  max-height: 160px;
+  padding: 6px 8px;
+  border: 0;
+  background: none;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  color: var(--color-base-content);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sf-chat-input::placeholder { color: var(--color-muted-content); }
+button.sf-chat-submit {
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
   background: var(--color-primary);
   color: var(--color-primary-content);
-  padding: 0 14px;
-  min-height: 2.5rem;
-  font-weight: 640;
+}
+button.sf-chat-submit:hover:not(:disabled) { background: var(--color-primary-hover); }
+button.sf-chat-submit svg { display: block; }
+button.sf-chat-submit.sf-chat-submit-combo {
+  width: auto;
+  padding: 0 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 550;
 }
 
 /* popover --------------------------------------------------------------- */
@@ -1849,36 +2453,58 @@ button.sf-chat-submit {
 .sf-popover {
   position: fixed;
   z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   width: min(340px, calc(100vw - 32px));
   background: var(--color-base-100);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
-  padding: 12px;
+  padding: 14px;
   min-width: 0;
 }
+.sf-popover-label {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-base-content);
+  line-height: 1.2;
+}
 .sf-popover-excerpt {
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  line-height: 1.45;
   color: var(--color-muted-content);
-  background: var(--color-base-200);
-  border-radius: var(--radius-sm);
-  padding: 6px 8px;
-  margin-bottom: 9px;
-  max-height: 5em;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  max-height: 4.6em;
   overflow: auto;
   overflow-wrap: anywhere;
 }
 .sf-popover-text {
+  display: block;
   width: 100%;
   font: inherit;
-  min-height: 5rem;
-  resize: vertical;
-  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  min-height: 6.5rem;
+  resize: none;
+  padding: 10px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   background: var(--color-base-200);
   color: var(--color-base-content);
+  outline: none;
+  box-shadow: none;
+}
+.sf-popover-text::placeholder { color: var(--color-muted-content); }
+.sf-popover-text:focus,
+.sf-popover-text:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--color-base-content);
 }
 .sf-popover-images { display: flex; flex-wrap: wrap; gap: 6px; }
 .sf-popover-images:not(:empty) { margin-top: 8px; }
@@ -1906,28 +2532,62 @@ button.sf-popover-image-remove {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 7px 8px;
-  margin-bottom: 6px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--color-warning);
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   background: var(--color-base-200);
 }
 .sf-draft-comment { flex: 1; min-width: 0; font-size: 0.85rem; overflow-wrap: anywhere; }
 button.sf-draft-remove {
   flex: none;
-  padding: 3px 9px;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  background: var(--color-base-100);
+  color: var(--color-muted-content);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
 }
-.sf-popover-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+button.sf-draft-remove:hover {
+  color: var(--color-status-content);
+  background: var(--color-error);
+  border-color: transparent;
+}
+.sf-popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.sf-popover-actions button,
+button.sf-popover-queue,
+button.sf-popover-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color var(--dur-quick) var(--ease-out),
+              border-color var(--dur-quick) var(--ease-out),
+              color var(--dur-quick) var(--ease-out);
+}
 button.sf-popover-queue {
-  border: 0;
-  border-radius: var(--radius-sm);
   background: var(--color-primary);
   color: var(--color-primary-content);
-  padding: 7px 14px;
-  min-height: 2.2rem;
-  font-weight: 640;
+  border-color: var(--color-primary);
 }
 button.sf-popover-attach {
   margin-right: auto;
@@ -1945,13 +2605,11 @@ button.sf-popover-attach {
 button.sf-popover-attach:hover { border-color: var(--border); color: var(--color-base-content); }
 .sf-popover-file { display: none; }
 button.sf-popover-cancel {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--color-muted-content);
-  padding: 7px 12px;
-  min-height: 2.2rem;
+  background: var(--color-base-100);
+  color: var(--color-base-content);
 }
+button.sf-popover-cancel:hover { background: var(--fill-hover); }
+button.sf-popover-cancel:active:not(:disabled) { background: var(--fill-active); }
 
 /* audit — advisory only, never a blocking banner ------------------------ */
 
@@ -1980,8 +2638,8 @@ button.sf-audit-badge {
 }
 .sf-audit.sf-open .sf-audit-list { display: block; }
 .sf-audit-finding { font-size: 0.83rem; padding: 6px 8px; border-radius: var(--radius-sm); overflow-wrap: anywhere; }
-.sf-sev-warn  { border-left: 3px solid var(--color-warning); }
-.sf-sev-error { border-left: 3px solid var(--color-error); }
+.sf-sev-warn  { color: var(--color-warning); }
+.sf-sev-error { color: var(--color-error); }
 
 /* tabs ------------------------------------------------------------------ */
 /* Built by client.js from sibling [data-tab] panels. Sticks under #sf-chrome so a
@@ -2135,27 +2793,42 @@ body.sf-gated #sf-chrome { visibility: hidden; }
   z-index: 8;
   display: grid;
   place-items: center;
-  background: var(--color-base-200);
+  background: var(--color-base-100);
 }
 body:not(.sf-gated) .sf-gate { display: none; }
 
-.sf-gate-card { text-align: center; padding: 24px; max-width: min(90vw, 420px); }
-.sf-gate-title { font-size: 1.25rem; font-weight: 640; line-height: 1.3; color: var(--color-base-content); }
-.sf-gate-copy { margin-top: 8px; font-size: 0.9rem; color: var(--color-muted-content); }
+/* The cover matches the page ground, so a fast paint is just a blank beat.
+   The card is the interruption — only put it on screen if the wait is real. */
+.sf-gate-card {
+  text-align: center;
+  padding: 24px;
+  max-width: min(90vw, 420px);
+  opacity: 0;
+  animation: sf-gate-card-in 0s linear 200ms forwards;
+}
+.sf-gate-card.sf-gate-held,
+.sf-gate-card.sf-gate-stalled {
+  animation: none;
+  opacity: 1;
+}
+@keyframes sf-gate-card-in { to { opacity: 1; } }
+.sf-gate-title { font-size: 18px; font-weight: 590; line-height: 24px; color: var(--color-base-content); }
+.sf-gate-copy { margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--color-muted-content); }
 .sf-gate-card.sf-gate-held .sf-gate-title { color: var(--color-warning); }
 .sf-gate-card.sf-gate-stalled .sf-gate-title { color: var(--color-error); }
 
 button.sf-gate-show {
   margin-top: 18px;
   font: inherit;
-  font-size: 0.85rem;
-  font-weight: 560;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  padding: 7px 16px;
-  min-height: 2.25rem;
-  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  min-height: 24px;
+  height: 24px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: var(--color-base-100);
+  background: var(--color-base-200);
   color: var(--color-base-content);
 }
 button.sf-gate-show:hover { border-color: var(--color-primary); }
@@ -2169,11 +2842,9 @@ button.sf-gate-show:hover { border-color: var(--color-primary); }
   background: var(--color-base-100);
   color: var(--color-base-content);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--color-warning);
   border-radius: var(--radius-sm);
   padding: 8px 16px;
   font-size: 0.85rem;
-  box-shadow: var(--shadow-card);
   max-width: min(90vw, 560px);
 }
 
@@ -2190,29 +2861,25 @@ button.sf-gate-show:hover { border-color: var(--color-primary); }
   background: var(--color-base-100);
   color: var(--color-base-content);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--color-warning);
   border-radius: var(--radius-sm);
   padding: 8px 16px;
   font-size: 0.85rem;
-  box-shadow: var(--shadow-card);
   max-width: min(90vw, 560px);
 }
-/* Fixed chrome overlaps whatever is under it, so the page makes room for the
-   banner and the toasts clear it. */
+/* Fixed chrome overlaps whatever is under it, so the page makes room for the banner. */
 body.sf-ended #sf-content { padding-bottom: 140px; }
-body.sf-ended .sf-toasts { bottom: 68px; }
 body.sf-ended #sf-content [data-widget] [data-option][disabled] { opacity: 0.55; cursor: not-allowed; }
 .sf-topbar button[disabled], .sf-queue-send[disabled], .sf-chat-submit[disabled] { opacity: 0.5; cursor: not-allowed; }
-button.sf-end-session.sf-armed { border-color: var(--color-error); color: var(--color-error); font-weight: 640; }
+button.sf-end-session.sf-armed { border-color: var(--color-error); color: var(--color-error); }
 .sf-chat-input[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 /* toasts ---------------------------------------------------------------- */
 
 .sf-toasts {
   position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 60px;
+  left: 0;
+  right: 0;
   z-index: 7;
   display: flex;
   flex-direction: column;
@@ -2230,6 +2897,11 @@ button.sf-end-session.sf-armed { border-color: var(--color-error); color: var(--
   box-shadow: var(--shadow-card);
   max-width: min(90vw, 520px);
   overflow-wrap: anywhere;
+  animation: sf-toast-in var(--dur-fast) var(--ease-out) both;
+}
+@keyframes sf-toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* whiteboard ------------------------------------------------------------ */
@@ -2338,65 +3010,73 @@ button.sf-end-session.sf-armed { border-color: var(--color-error); color: var(--
   color: var(--color-muted-content);
 }
 
-/* Section collapse — chrome-injected, so sf- prefixed. */
+/* Section collapse — chrome-injected, so sf- prefixed. Same chevron as details. */
 .sd-section, .sd-card { scroll-margin-top: 96px; }
+.sd-section > :is(h1, h2, h3) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .sf-sec-toggle {
-  margin-left: 10px;
+  flex: none;
+  margin-left: auto;
+  box-sizing: border-box;
   width: 22px;
   height: 22px;
   padding: 0;
-  vertical-align: middle;
-  border: 1px solid var(--color-base-300);
-  border-radius: 6px;
-  background: none;
-  color: var(--color-body-content);
-  font: inherit;
-  font-size: 11px;
-  line-height: 1;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-muted-content);
+  -webkit-mask: var(--sf-chevron) no-repeat center / 12px 12px;
+  mask: var(--sf-chevron) no-repeat center / 12px 12px;
   cursor: pointer;
+  transition: transform var(--dur-quick) var(--ease-out);
 }
-.sf-sec-toggle::before { content: '⌃'; }
-.sf-sec-toggle[aria-expanded="false"]::before { content: '⌄'; }
-.sf-sec-toggle:hover { color: var(--color-base-content); border-color: var(--color-base-content); }
-.sf-sec-foot {
+.sf-sec-toggle[aria-expanded="true"] { transform: rotate(180deg); }
+.sf-sec-toggle:hover { background: var(--color-base-content); }
+button.sf-sec-foot {
   display: block;
   margin: 12px 0 4px;
-  padding: 3px 10px;
-  border: 1px solid var(--color-base-300);
-  border-radius: 6px;
-  background: none;
+  padding: 0 10px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-base-100);
   color: var(--color-body-content);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
-.sf-sec-foot::after { content: ' ⌃'; }
-.sf-sec-foot:hover { color: var(--color-base-content); border-color: var(--color-base-content); }
+button.sf-sec-foot:hover { color: var(--color-base-content); background: var(--fill-hover); }
 .sf-collapsed > :not(h1):not(h2):not(h3):not(.sd-card-title) { display: none !important; }
-/* A collapsed section reads as a closed drawer, not a normal heading. */
 .sf-collapsed {
-  border: 1px dashed var(--color-base-300);
-  border-radius: 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
   padding: 8px 16px;
   margin: 14px 0;
   cursor: pointer;
 }
 .sf-collapsed:hover { border-color: var(--color-base-content); border-style: solid; }
-#sf-content .sf-collapsed > h1, #sf-content .sf-collapsed > h2, #sf-content .sf-collapsed > h3 {
+#sf-content .sf-collapsed > h1,
+#sf-content .sf-collapsed > h2,
+#sf-content .sf-collapsed > h3 {
   font-size: 1.05rem;
   margin: 2px 0;
   padding: 0;
   border: 0;
   color: var(--color-body-content);
 }
-#sf-content .sf-collapsed > .sd-card-title { color: var(--color-body-content); }
+#sf-content .sf-collapsed > .sd-card-title {
+  color: var(--color-body-content);
+  margin: -8px -16px 8px;
+  background: transparent;
+}
 .sf-collapsed::after {
   content: attr(data-sf-hidden);
   display: block;
   margin-top: 2px;
   font-size: 12px;
-  color: var(--color-body-content);
-  opacity: 0.7;
+  color: var(--color-muted-content);
 }
 @media print {
   #sf-chrome { display: none; }

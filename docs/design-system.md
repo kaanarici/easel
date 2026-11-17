@@ -13,7 +13,7 @@ The shell page sets `data-theme` on the `<html>` element. Three families — def
 <html data-theme="fig-dark">
 ```
 
-The family comes from the topbar picker (localStorage `sf-theme-family`) or a `?theme=<family>` URL pin; the mode from the `[T]heme` cycle. The ⚙ tuner popup layers per-browser inline token overrides (localStorage `sf-tuner-v2`) on top of whichever family is active.
+The family comes from the tuner’s Family row (localStorage `sf-theme-family`) or a `?theme=<family>` URL pin; the mode from the Auto / Light / Dark cycle in the topbar. The ⚙ tuner popup layers per-browser inline token overrides (localStorage `sf-tuner-v2`) on top of whichever family is active.
 
 Both live in the expanded bar. Under 1500px — the width at which the full bar stops fitting one line — the chrome opens collapsed — one row of the controls a reader acts on, with theme, page width, the diff legend and the round note folded away — and the chevron at its right end expands it (localStorage `sf-chrome-compact`).
 
@@ -25,15 +25,17 @@ Three, ordered by contrast, and the ordering is the point:
 
 | Token | Used for | Measured on the page ground |
 |---|---|---|
-| `--color-base-content` | headings, `<strong>`, table cells, controls | 15.3:1 light · 17.9:1 dark |
-| `--color-body-content` | prose (`p`, `li`), inline `code` | 7.7:1 light · 11.3:1 dark |
-| `--color-muted-content` | secondary text, `sd-muted` | 6.1:1 light · 7.4:1 dark |
+| `--color-base-content` | headings, `<strong>`, table cells, controls | #141414 / #E4E4E4 |
+| `--color-body-content` | prose (`p`, `li`), inline `code` | secondary ink (74% / 55%) |
+| `--color-muted-content` | secondary text, `sd-muted` | solid `#707070` / `#808080` — ≥ 4.5:1 on `base-100` |
 
 Inline `code` **pins** the body tier rather than inheriting it. Inheriting put muted text on the raised code ground at 4.27:1 — each token fine alone, the stack below AA.
 
-**On dark the tiers are warm cream, not neutral grey**, sampled from the reference's own `#ece7db` ink. Tone is what reads as dim on a black ground, not the ratio: a near-neutral grey at the same contrast still looks washed out, so the dark tiers carry real chroma (~0.034–0.038 at hue 88) and sit brighter than their light-theme counterparts. Dropping that chroma is a regression even if the contrast number holds.
+**Default chrome is a neutral editor palette.** Light is editor `#FCFCFC` / chrome `#F8F8F8` / sidebar `#F3F3F3` with `#141414` ink. Dark is `#181818` / `#141414` / `#141414` with `#E4E4E4` ink. Accent is a muted blue (`#3685BF` light, `#599CE7` dark) — used on links, focus, and primary actions. Status, diffs, and annotation markers keep their own category hues. Lantern and fig do not inherit that block — each family has its own warm foundation, then its literary overrides.
 
-The dark page ground is **pure black**; `--color-base-100` and `--color-base-300` step *up* from it, so panels lift off the page. In light they recede, which is why the two themes order those tokens differently.
+Type on the default family is a compact UI scale: H1 24/30/590, H2 18/24/590, H3 16/22/590, body 14/20. Cards are framed, 8px radius, 16px pad, no shadow; `.sd-card-title` is a 28px / 12px / 500 title on a quiet fill. Buttons and `[data-option]` hug their label at 24px / 6px radius. Pills (`.sd-badge`) are always neutral; status is a category dot. Tables are a framed rounded shell. Callouts take a 10% tone tint and a leading glyph (info / check / warning / error). Stats (`.sd-metric`) are open value+label, with optional `.sd-metric-success|warning|error|info`. Diff lines use the insert/remove tints and a 3px accent strip. Default charts use the standard series (`#1F8A65` / `#2E79B5` / `#7B64B8` / `#F0A040` / `#C85898`); lantern and fig keep the warmer oklch set.
+
+The dark page ground is **near-black**; `--color-base-100` and `--color-base-300` step *up* from it, so panels lift off the page. In light they recede, which is why the two themes order those tokens differently.
 
 `--border-subtle` is lighter than `--border`: internal table rules use it so the outer edge stays the stronger line.
 
@@ -43,7 +45,7 @@ The dark page ground is **pure black**; `--color-base-100` and `--color-base-300
 
 ## Fonts
 
-`--font-serif` carries display type, `--font-sans` body, `--font-mono` labels and code. Every face is a system face, so nothing is fetched and the publish path stays same-origin.
+`--font-sans` carries display and body on the default family. `--font-serif` remains for lantern/fig and the tuner. `--font-mono` is labels and code. Every face is a system face, so nothing is fetched and the publish path stays same-origin.
 
 `[data-option]` pins `font-family` rather than relying on `font: inherit` alone: a control inside a monospace ancestor otherwise renders as what looks like a code sample.
 

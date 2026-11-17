@@ -1,26 +1,28 @@
-/* Stock gantt bars fail AA (2.95:1, 4.0:1); two text colours cover four states. */
+/* Stock gantt bars fail AA (2.95:1, 4.0:1); two text colours cover four states.
+   Every hex is a 6-digit shipped token. Category greens miss AA on light with
+   white labels, so done shares ink with plain. */
 const THEMES = {
   light: {
     text: '#fcfcfc',
-    outside: '#544941',
-    plain: '#645850',
-    done: '#038149',
-    active: '#a44c1d',
-    crit: '#cc272e',
-    edge: '#ded8cf',
-    section: ['#fcf9f2', '#f4f0e7'],
-    title: '#291f19',
+    outside: '#141414',
+    plain: '#141414',
+    done: '#141414',
+    active: '#2e76ab',
+    crit: '#cf2d56',
+    edge: '#f3f3f3',
+    section: ['#fcfcfc', '#f8f8f8'],
+    title: '#141414',
   },
   dark: {
-    text: '#120f08',
-    outside: '#c8bda3',
-    plain: '#a39982',
-    done: '#4ebe7d',
-    active: '#dd8852',
-    crit: '#f66d67',
-    edge: '#35312a',
-    section: ['#0c0a06', '#1a1711'],
-    title: '#f6ecd4',
+    text: '#191c22',
+    outside: '#7bafe9',
+    plain: '#e4e4e4',
+    done: '#3fa266',
+    active: '#599ce7',
+    crit: '#fc6b83',
+    edge: '#141414',
+    section: ['#181818', '#141414'],
+    title: '#e4e4e4',
   },
 }
 

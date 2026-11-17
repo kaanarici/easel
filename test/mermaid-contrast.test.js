@@ -16,7 +16,7 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const TOKEN_NAMES = [
   '--color-base-100', '--color-base-200', '--color-base-300', '--color-base-content',
   '--color-body-content', '--color-muted-content', '--color-primary', '--color-primary-content',
-  '--color-success', '--color-warning', '--color-error', '--color-info',
+  '--color-primary-hover', '--color-success', '--color-warning', '--color-error', '--color-info',
   '--color-status-content', '--border', '--border-subtle',
 ]
 const AA = 4.5

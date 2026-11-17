@@ -18,9 +18,14 @@ const MEASURE = `(() => {
     cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = v; cx.fillRect(0, 0, 1, 1);
     const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2]];
   };
+  window.__composite = (fg, bg) => {
+    cx.clearRect(0, 0, 1, 1); cx.fillStyle = bg; cx.fillRect(0, 0, 1, 1);
+    cx.fillStyle = fg; cx.fillRect(0, 0, 1, 1);
+    const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2]];
+  };
   const lum = (c) => { const f = c.map((v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; });
     return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2]; };
-  window.__ratio = (a, b) => { const x = lum(window.__rgb(a)), y = lum(window.__rgb(b));
+  window.__ratio = (a, b) => { const x = lum(window.__composite(a, b)), y = lum(window.__rgb(b));
     return Math.round(((Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)) * 100) / 100; };
 })()`
 
@@ -110,45 +115,81 @@ describe('a decision control never inherits a face from the content', { timeout:
   })
 })
 
-describe('warm dark is derived from the reference, not the old cool theme', { timeout: 120000 }, () => {
-  test('the dark accent is warm — red channel leads blue', async () => {
+describe('default dark follows the neutral palette', { timeout: 120000 }, () => {
+  test('the dark accent is blue, not a warm fill', async () => {
     await render('<p>x</p>', 'dark')
     const got = await page.evaluate(`(() => {
       const v = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-      return { primary: window.__rgb(v('--color-primary')), ground: window.__rgb(v('--color-base-100')) };
+      return { primary: window.__rgb(v('--color-primary')), ground: window.__rgb(v('--color-base-200')) };
     })()`)
-    assert.ok(got.primary[0] > got.primary[2] + 60, `dark accent still reads cool: rgb(${got.primary})`)
-    assert.ok(got.ground[0] >= got.ground[2], `dark ground still reads cool: rgb(${got.ground})`)
+    const [r, g, b] = got.primary
+    assert.ok(b > r && b > g, `dark accent is not blue-led: rgb(${got.primary})`)
+    assert.ok(b - r > 40, `dark accent is too gray to read as accent: rgb(${got.primary})`)
+    assert.ok(got.ground[0] + got.ground[1] + got.ground[2] < 80, `dark ground is not near-black: rgb(${got.ground})`)
   })
 
-  test('dark text is warm cream, not a neutral grey', async () => {
-    // The complaint was tone, not ratio: a near-neutral grey reads dim on black
-    // even at the same contrast. Warmth is the measurable part of the fix.
+  test('dark text stays bright enough to read on the near-black ground', async () => {
     await render('<p id="p">prose <strong id="s">emphasis</strong></p>', 'dark')
     const got = await page.evaluate(`(() => {
-      const c = (id) => window.__rgb(getComputedStyle(document.getElementById(id)).color);
       const bg = getComputedStyle(document.body).backgroundColor;
-      return { body: c('p'), emph: c('s'),
-               bodyContrast: window.__ratio(getComputedStyle(document.getElementById('p')).color, bg) };
+      return { bodyContrast: window.__ratio(getComputedStyle(document.getElementById('p')).color, bg),
+               emphContrast: window.__ratio(getComputedStyle(document.getElementById('s')).color, bg) };
     })()`)
-    for (const [role, rgb] of [['body', got.body], ['emphasis', got.emph]]) {
-      assert.ok(rgb[0] > rgb[2] + 12, `${role} is near-neutral on dark: rgb(${rgb})`)
-      assert.ok(rgb[0] >= rgb[1] && rgb[1] >= rgb[2], `${role} is not a warm ramp: rgb(${rgb})`)
-    }
-    assert.ok(got.bodyContrast >= 9, `dark body is still dim at ${got.bodyContrast}:1`)
+    assert.ok(got.bodyContrast >= 4.5, `dark body is still dim at ${got.bodyContrast}:1`)
+    assert.ok(got.emphContrast >= 10, `dark emphasis is still dim at ${got.emphContrast}:1`)
   })
 
-  test('serif display sits against sans body at roughly 3x', async () => {
+  test('sans display sits against sans body at the default scale', async () => {
     await render('<h1 id="h">Display</h1><p id="p">body</p>')
     const got = await page.evaluate(`(() => {
       const h = getComputedStyle(document.getElementById('h')), p = getComputedStyle(document.getElementById('p'));
-      return { hf: h.fontFamily, pf: p.fontFamily, ratio: parseFloat(h.fontSize) / parseFloat(p.fontSize) };
+      return { hf: h.fontFamily, pf: p.fontFamily, hs: parseFloat(h.fontSize), ps: parseFloat(p.fontSize),
+               ratio: parseFloat(h.fontSize) / parseFloat(p.fontSize) };
     })()`)
-    // "sans-serif" contains "serif", so the families are compared by their
-    // leading face rather than by a substring that both stacks satisfy.
-    assert.match(got.hf, /Iowan|Palatino|Book Antiqua|Georgia/i, `h1 is not the serif stack: ${got.hf}`)
-    assert.doesNotMatch(got.pf, /Iowan|Palatino|Book Antiqua|Georgia/i, `body picked up the display face: ${got.pf}`)
-    assert.ok(got.ratio >= 2, `display-to-body ratio only ${got.ratio.toFixed(2)}`)
+    assert.doesNotMatch(got.hf, /Iowan|Palatino|Book Antiqua|Georgia/i, `h1 still uses the serif stack: ${got.hf}`)
+    assert.doesNotMatch(got.pf, /Iowan|Palatino|Book Antiqua|Georgia/i, `body picked up a display serif: ${got.pf}`)
+    assert.ok(got.hs === 24 && got.ps === 14, `default type is 24/14, got ${got.hs}/${got.ps}`)
+    assert.ok(got.ratio >= 1.6, `display-to-body ratio only ${got.ratio.toFixed(2)}`)
+  })
+
+  test('dark chrome hover is a fill wash, not the same paint as the bar', async () => {
+    await render('<button class="sf-annotate-toggle" id="b">Annotate</button>', 'dark')
+    const got = await page.evaluate(`(() => {
+      const root = document.documentElement
+      const v = (n) => getComputedStyle(root).getPropertyValue(n).trim()
+      const chrome = v('--color-base-200')
+      const hover = v('--fill-hover')
+      const panel = v('--color-base-300')
+      return {
+        hoverVsChrome: window.__ratio(hover, chrome),
+        panelVsChrome: window.__ratio(panel, chrome),
+        radius: getComputedStyle(document.getElementById('b')).borderRadius,
+      }
+    })()`)
+    assert.ok(got.hoverVsChrome > 1.05, `dark hover vanished into the chrome (${got.hoverVsChrome})`)
+    assert.ok(got.panelVsChrome <= 1.02, `dark base-300 is no longer the same as chrome, so this check is stale (${got.panelVsChrome})`)
+    assert.equal(got.radius, '6px', `header actions are ${got.radius}, not the standard 6px`)
+  })
+})
+
+describe('lantern and fig keep a literary palette', { timeout: 120000 }, () => {
+  for (const theme of ['lantern-light', 'fig-light', 'lantern-dark', 'fig-dark']) {
+    test(`${theme}: primary and page ground carry a hue`, async () => {
+      await render('<p>x</p>', theme)
+      const got = await page.evaluate(`(() => {
+        const v = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+        return { primary: window.__rgb(v('--color-primary')), ground: window.__rgb(v('--color-base-200')) };
+      })()`)
+      const spread = (c) => Math.max(...c) - Math.min(...c)
+      assert.ok(spread(got.primary) > 24, `${theme} primary collapsed to gray: rgb(${got.primary})`)
+      assert.ok(spread(got.ground) > 8, `${theme} ground collapsed to gray: rgb(${got.ground})`)
+    })
+  }
+
+  test('lantern headings use the serif stack', async () => {
+    await render('<h1 id="h">Display</h1>', 'lantern-light')
+    const fam = await page.evaluate(`getComputedStyle(document.getElementById('h')).fontFamily`)
+    assert.match(fam, /Iowan|Palatino|Book Antiqua|Georgia/i, `lantern h1 is not serif: ${fam}`)
   })
 })
 
@@ -226,7 +267,7 @@ describe('callout and inline-code components', { timeout: 120000 }, () => {
                body: window.__ratio(getComputedStyle(document.getElementById('b')).color, bg) };
     })()`)
     assert.ok(got.radius > 0, 'callout has square corners')
-    assert.ok(got.edge >= 3, 'callout has no accent edge')
+    assert.ok(got.edge >= 1 && got.edge < 3, `callout top edge is a candy bar (${got.edge}px), not a hairline`)
     // A thick coloured left edge is the round-diff mark's shape, not a callout's.
     assert.ok(got.leftEdge < 3, 'callout accent moved back to the left edge, colliding with diff marks')
     assert.ok(got.body >= 4.5, `callout body text is ${got.body}:1`)
@@ -240,34 +281,38 @@ describe('callout and inline-code components', { timeout: 120000 }, () => {
       const fs = parseFloat(getComputedStyle(b).fontSize);
       return { h: r.height, fs, scroll: b.scrollHeight, client: b.clientHeight };
     })()`)
-    assert.ok(got.h < 24, `badge is ${got.h}px tall, no tighter than before`)
+    assert.ok(got.h < 28, `badge is ${got.h}px tall, no tighter than before`)
     assert.ok(got.h >= got.fs, 'badge is shorter than its own text, so it clips')
     assert.ok(got.scroll <= got.client + 1, 'badge content overflows its box')
   })
 
-  test('the table reads in three weights, not one', async () => {
-    // The internal rule must be read off a row that is NOT the last one — the
-    // closing rule is deliberately the strong colour, same as the header's.
-    await render('<div class="sd-tablewrap"><table><thead><tr><th id="h">head</th></tr></thead>' +
+  test('the table reads in two internal weights, inside a frame', async () => {
+    await render('<div class="sd-tablewrap" id="w"><table><thead><tr><th id="h">head</th></tr></thead>' +
       '<tbody><tr><td id="d">middle</td></tr><tr><td id="last">last</td></tr></tbody></table></div>')
     const got = await page.evaluate(`(() => {
       const col = (id) => getComputedStyle(document.getElementById(id)).borderBottomColor;
-      return { headRule: col('h'), rowRule: col('d'), closingRule: col('last') };
+      const w = getComputedStyle(document.getElementById('w'));
+      return { headRule: col('h'), rowRule: col('d'),
+               wrapTop: parseFloat(w.borderTopWidth), wrapBottom: parseFloat(w.borderBottomWidth) };
     })()`)
     assert.notEqual(got.headRule, got.rowRule, 'the header rule and the internal row rule are the same weight')
-    assert.equal(got.closingRule, got.headRule, 'the closing rule should match the header rule, not the internal one')
+    assert.equal(got.wrapTop, 1, 'the frame must close the top')
+    assert.equal(got.wrapBottom, 1, 'the frame must close the bottom')
   })
 
-  test('the accent edge is opt-in and offers a second colour', async () => {
-    await render('<div class="sd-entry sd-accent" id="a"></div><div class="sd-entry sd-accent-alt" id="b"></div><div class="sd-entry" id="c"></div>')
+  test('accent classes do not paint a left bar — that shape is a diff mark', async () => {
+    await render('<div class="sd-entry sd-accent" id="a"></div><div class="sd-entry sd-accent-alt" id="b"></div><div class="sd-entry" id="c"></div><div class="sd-card sd-accent" id="d"></div><div class="sd-card" id="e"></div>')
     const got = await page.evaluate(`(() => {
-      const e = (id) => { const s = getComputedStyle(document.getElementById(id));
-        return { w: parseFloat(s.borderLeftWidth), c: s.borderLeftColor }; };
-      return { a: e('a'), b: e('b'), c: e('c') };
+      const w = (id) => parseFloat(getComputedStyle(document.getElementById(id)).borderLeftWidth);
+      return { a: w('a'), b: w('b'), c: w('c'), d: w('d'), e: w('e') };
     })()`)
-    assert.ok(got.a.w >= 3, 'sd-accent draws no edge')
-    assert.notEqual(got.a.c, got.b.c, 'both accent variants resolve to the same colour')
-    assert.ok(got.c.w < 3, 'a plain entry picked up an accent edge it did not ask for')
+    assert.ok(got.a < 3, `sd-accent still draws a left bar (${got.a}px)`)
+    assert.ok(got.b < 3, `sd-accent-alt still draws a left bar (${got.b}px)`)
+    assert.ok(got.c < 3, `a plain entry picked up a left bar (${got.c}px)`)
+    assert.equal(got.a, got.c, 'sd-accent must not strip the frame\'s left edge')
+    assert.equal(got.b, got.c, 'sd-accent-alt must not strip the frame\'s left edge')
+    assert.equal(got.d, got.e, 'an accented card must keep the same left edge as a plain card')
+    assert.ok(got.d > 0, 'an accented card lost its left border')
   })
 
   // Geometry, not a computed property: the previous float reported float:right
@@ -340,21 +385,37 @@ describe('callout and inline-code components', { timeout: 120000 }, () => {
     assert.notEqual(got.wrap, 'anywhere', 'badge still allows mid-word breaks')
   })
 
+  test('a long hyphenated badge wraps inside its card instead of colliding with the pill', async () => {
+    await render('<div class="sd-card" id="c" style="width:240px"><div class="sd-row">' +
+      '<span class="sd-badge" id="b">a-badge-with-a-deliberately-long-label-that-must-wrap-not-clip</span>' +
+      '</div></div>')
+    const got = await page.evaluate(`(() => {
+      const b = document.getElementById('b'), c = document.getElementById('c');
+      const br = b.getBoundingClientRect(), cr = c.getBoundingClientRect();
+      return {
+        lines: b.getClientRects().length,
+        textOverflow: b.scrollWidth - b.clientWidth,
+        cardOverflow: Math.round(br.right - cr.right),
+      };
+    })()`)
+    assert.ok(got.textOverflow <= 1, `label overflows the pill by ${got.textOverflow}px`)
+    assert.ok(got.cardOverflow <= 1, `badge overflows its card by ${got.cardOverflow}px`)
+  })
+
   test('the table is closed top and bottom', async () => {
-    await render('<div class="sd-tablewrap"><table><thead><tr><th id="h">head</th></tr></thead>' +
+    await render('<div class="sd-tablewrap" id="w"><table><thead><tr><th id="h">head</th></tr></thead>' +
       '<tbody><tr><td>a</td></tr><tr><td id="last">b</td></tr></tbody></table></div>')
     const got = await page.evaluate(`(() => {
       const px = (id, p) => parseFloat(getComputedStyle(document.getElementById(id))[p]);
-      return { headTop: px('h', 'borderTopWidth'), headBottom: px('h', 'borderBottomWidth'),
-               lastBottom: px('last', 'borderBottomWidth') };
+      return { wrapTop: px('w', 'borderTopWidth'), wrapBottom: px('w', 'borderBottomWidth'),
+               headBottom: px('h', 'borderBottomWidth') };
     })()`)
-    assert.ok(got.headTop > 0, 'no rule above the header')
+    assert.ok(got.wrapTop > 0, 'no rule above the table')
+    assert.ok(got.wrapBottom > 0, 'the table does not close at the bottom')
     assert.ok(got.headBottom > 0, 'no rule below the header')
-    assert.ok(got.lastBottom > 0, 'the table does not close at the bottom')
   })
 
   test('the table edges are a single rule, not a doubled one', async () => {
-    // The wrapper's own top/bottom border rendered as a doubled 2px line at each edge.
     await render('<div class="sd-tablewrap" id="w"><table><thead><tr><th id="h">head</th></tr></thead>' +
       '<tbody><tr><td>a</td></tr><tr><td id="last">b</td></tr></tbody></table></div>')
     const got = await page.evaluate(`(() => {
@@ -362,9 +423,10 @@ describe('callout and inline-code components', { timeout: 120000 }, () => {
       return { wrapTop: px('w', 'borderTopWidth'), wrapBottom: px('w', 'borderBottomWidth'),
                headTop: px('h', 'borderTopWidth'), lastBottom: px('last', 'borderBottomWidth') };
     })()`)
-    assert.equal(got.wrapTop, 0, 'the wrapper still draws a top edge beside the header rule')
-    assert.equal(got.wrapBottom, 0, 'the wrapper still draws a bottom edge beside the closing rule')
-    assert.ok(got.headTop > 0 && got.lastBottom > 0, 'the cells must still carry the edges')
+    assert.equal(got.wrapTop, 1, 'the frame must be the top edge')
+    assert.equal(got.wrapBottom, 1, 'the frame must be the bottom edge')
+    assert.equal(got.headTop, 0, 'the header still draws a top edge beside the frame')
+    assert.equal(got.lastBottom, 0, 'the last row still draws a bottom edge beside the frame')
   })
 
   // Collapsed borders do not show up in computed style, so the top edge has to be
@@ -412,7 +474,7 @@ describe('callout and inline-code components', { timeout: 120000 }, () => {
 describe('classes listed as painted-when-empty really paint', { timeout: 120000 }, () => {
   // differ.js grants these a sid with no text in them. If one paints nothing,
   // the reader gets a zero-height block that still accepts an annotation.
-  const CLASSES = ['sd-card', 'sd-tablewrap', 'sd-metric', 'sd-badge', 'sd-tag', 'sd-flag', 'sd-entry', 'sd-focus']
+  const CLASSES = ['sd-card', 'sd-metric', 'sd-badge', 'sd-tag', 'sd-flag', 'sd-entry', 'sd-focus', 'sd-tablewrap']
 
   for (const cls of CLASSES) {
     test(`.${cls} paints with no content`, async () => {

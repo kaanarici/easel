@@ -69,12 +69,36 @@ describe('easel.css', () => {
     const got = await page.evaluate(`(() => ({
       seam: getComputedStyle(document.getElementById('cc')).borderBottomWidth,
       pickPad: getComputedStyle(document.getElementById('pc')).paddingTop,
-      plain: getComputedStyle(document.getElementById('nc')).borderBottomWidth,
+      pickBottom: getComputedStyle(document.getElementById('pc')).borderBottomWidth,
     }))()`)
     await browser.close()
     assert.equal(got.seam, '0px', 'the row before a pick row must not draw a separator')
     assert.equal(got.pickPad, '0px', 'pick-row cells drop their top padding')
-    assert.notEqual(got.plain, '0px', 'ordinary rows keep their separator')
+    assert.notEqual(got.pickBottom, '0px', 'the pick row must still separate from the row below')
+  })
+
+  test('under 900px an open queue lifts chat so both panels stay readable', async () => {
+    const browser = await puppeteer.launch({ headless: 'new' })
+    const page = await browser.newPage()
+    await page.setViewport({ width: 800, height: 900 })
+    await page.setContent(
+      `<!doctype html><html data-theme="light"><head><style>${css}</style></head>` +
+      `<body class="sf-shell"><div id="sf-chrome">` +
+      `<aside class="sf-queue sf-open" id="q">queue</aside>` +
+      `<aside class="sf-chat sf-open" id="c"><div class="sf-chat-drawer" id="d">thread</div>` +
+      `<form class="sf-chat-form">prompt</form></aside>` +
+      `</div></body></html>`,
+    )
+    const got = await page.evaluate(`(() => {
+      const q = getComputedStyle(document.getElementById('q'))
+      const c = getComputedStyle(document.getElementById('c'))
+      const d = getComputedStyle(document.getElementById('d'))
+      return { qBottom: q.bottom, cBottom: c.bottom, drawerMax: d.maxHeight }
+    })()`)
+    await browser.close()
+    assert.equal(got.qBottom, '16px', 'queue must stay on the bottom inset')
+    assert.equal(got.cBottom, '410px', 'chat must sit above the 42vh queue plus a 32px gap')
+    assert.equal(got.drawerMax, '378px', 'the lifted drawer must cap at 42vh (378px at this viewport)')
   })
 
   test('templates-facing design classes never use the sf- prefix', () => {

@@ -20,7 +20,8 @@ const CHROME_CLASSES = [
   'sf-wrap-toggle', 'sf-wrappable', 'sf-wrap-mark',
   'sf-gate', 'sf-gate-card', 'sf-gate-title', 'sf-gate-copy', 'sf-gate-show',
   'sf-gate-banner', 'sf-gated', 'sf-end-session', 'sf-gate-stalled',
-  'sf-theme-toggle', 'sf-width', 'sf-width-slider', 'sf-width-keys',
+  'sf-theme-toggle', 'sf-width', 'sf-width-slider', 'sf-width-keys', 'sf-width-reset',
+  'sf-identity', 'sf-actions', 'sf-theme-tools',
   'sf-theme-pick', 'sf-theme-pick-btn', 'sf-tuner-toggle',
   'sf-chrome-toggle', 'sf-compact', 'sf-queue-toggle', 'sf-chat-toggle', 'sf-empty',
   'sf-tuner', 'sf-tuner-title', 'sf-tuner-row', 'sf-tuner-color',
@@ -28,6 +29,7 @@ const CHROME_CLASSES = [
   'sf-prior-answered',
   'sf-tabs', 'sf-tabs-strip', 'sf-tab', 'sf-tab-label', 'sf-tab-count', 'sf-tab-keys',
   'sf-tab-pager', 'sf-tab-prev', 'sf-tab-next', 'sf-tab-pager-text', 'sf-tab-pager-kicker', 'sf-tab-pager-label', 'sf-tab-pager-arrow', 'sf-tab-pager-key',
+  'sf-sec-toggle', 'sf-sec-foot', 'sf-collapsed',
 ]
 
 describe('easel.css covers the chrome vocabulary', () => {

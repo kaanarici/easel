@@ -91,12 +91,15 @@ test('the frame adopts the easel theme, not the OS scheme', SLOW, async () => {
   assert.equal(light.colorScheme, 'light')
 })
 
-test('the frame banner is warm in dark and clears AA', SLOW, async () => {
+test('the frame banner is not cool in dark and clears AA', SLOW, async () => {
   const dark = await frameStateForTheme('dark')
   assert.ok(dark.bannerBg, 'no banner rendered, so nothing was measured')
   const [r, g, b] = dark.bannerBg
-  // The old value was #23293a — blue-dominant. Warm means red leads blue.
-  assert.ok(r > b, `frame banner still reads cool: rgb(${dark.bannerBg})`)
+  // The value this guards against is #23293a — blue-dominant, which read as a
+  // different product from the board around it. The dark family is now neutral
+  // editor greys, so those are on-palette and red need only not trail blue;
+  // the light case below has always been written this way.
+  assert.ok(r >= b, `frame banner still reads cool: rgb(${dark.bannerBg})`)
   assert.ok(dark.contrast >= 4.5, `frame banner contrast ${dark.contrast} is below AA`)
 })
 

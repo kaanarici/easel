@@ -17,6 +17,9 @@ let daemon
 let browser
 
 before(async () => {
+  // Short grace so a stranded-listener test can expire without a 30s wait.
+  // Nothing else in this file parks an await, so the window is unused elsewhere.
+  process.env.EASEL_WAITING_GRACE_MS = '400'
   daemon = startDaemon(PORT, DATA_DIR)
   await waitHealthy(BASE)
   browser = await (await import('puppeteer')).default.launch({ headless: 'new' })
@@ -308,16 +311,16 @@ describe('theme toggle', () => {
 
   test('the full cycle: auto follows the OS, light and dark override it, auto returns', async () => {
     const pg = await openPage('dark')
-    assert.deepEqual(await read(pg), { theme: 'dark', label: '[T]heme: auto', stored: null })
+    assert.deepEqual(await read(pg), { theme: 'dark', label: 'Auto', stored: null })
 
     await click(pg) // auto -> light, against a dark OS: the override must win
-    assert.deepEqual(await read(pg), { theme: 'light', label: '[T]heme: light', stored: 'light' })
+    assert.deepEqual(await read(pg), { theme: 'light', label: 'Light', stored: 'light' })
 
     await click(pg)
-    assert.deepEqual(await read(pg), { theme: 'dark', label: '[T]heme: dark', stored: 'dark' })
+    assert.deepEqual(await read(pg), { theme: 'dark', label: 'Dark', stored: 'dark' })
 
     await click(pg) // back to auto: storage cleared, OS rules again
-    assert.deepEqual(await read(pg), { theme: 'dark', label: '[T]heme: auto', stored: null })
+    assert.deepEqual(await read(pg), { theme: 'dark', label: 'Auto', stored: null })
     await pg.close()
   })
 
@@ -325,7 +328,7 @@ describe('theme toggle', () => {
     const pg = await openPage('dark')
     await click(pg) // pin light
     await pg.reload({ waitUntil: 'networkidle0' })
-    assert.deepEqual(await read(pg), { theme: 'light', label: '[T]heme: light', stored: 'light' })
+    assert.deepEqual(await read(pg), { theme: 'light', label: 'Light', stored: 'light' })
 
     // Clean up the profile-wide localStorage for any test that follows.
     await click(pg)
@@ -519,6 +522,8 @@ describe('tuner and family picker', () => {
     assert.equal(await pg.$('.sf-tuner.sf-open'), null, 'popup must start closed')
     await pg.click('.sf-tuner-toggle')
     assert.ok(await pg.$('.sf-tuner.sf-open'), 'gear must open the popup')
+    assert.ok(await pg.$('.sf-tuner .sf-width-slider'), 'the width slider must live in the tuner')
+    assert.equal(await pg.$('.sf-theme-tools .sf-width-slider'), null, 'the width slider must not sit in the topbar')
     await pg.click('.sf-tuner-toggle')
     assert.equal(await pg.$('.sf-tuner.sf-open'), null, 'gear must close it again')
 
@@ -557,6 +562,7 @@ describe('tuner and family picker', () => {
     await pg.goto(`${BASE}/b/${key}`, { waitUntil: 'networkidle0' })
     const theme = () => pg.evaluate(`document.documentElement.dataset.theme`)
 
+    await pg.click('.sf-tuner-toggle')
     await pg.click('.sf-theme-pick-btn[data-family="lantern"]')
     assert.match(await theme(), /^lantern-(light|dark)$/, 'picking lantern must swap the family')
 
@@ -571,6 +577,7 @@ describe('tuner and family picker', () => {
     assert.match(t1, /^lantern-/, 'mode cycle must stay inside the picked family')
     assert.match(t2, /^lantern-/, 'mode cycle must stay inside the picked family')
 
+    await pg.click('.sf-tuner-toggle')
     await pg.click('.sf-theme-pick-btn[data-family=""]')
     assert.match(await theme(), /^(light|dark)$/, 'default must drop the family suffix')
     await pg.close()
@@ -686,5 +693,59 @@ describe('annotating inside a widget', () => {
       await pg.evaluate("document.querySelector('#sf-content [data-widget]').classList.contains('sf-recorded')"),
       true, 'the option click did not record a vote')
     await pg.close()
+  })
+})
+
+/* The daemon has always tracked a dead listener; the board used to ignore it. */
+describe('lost listener chrome', () => {
+  const PAGE = page('lost.html', '<h1>lost</h1><p>content</p>')
+  let key
+
+  before(async () => { key = await open(PAGE, 'lost chrome') })
+
+  test('a listener that died mid-wait shows on the board', async () => {
+    const parked = await api('POST', `/api/b/${key}/await`, { agent: 'chrome:ghost', timeoutS: 1 })
+    assert.equal(parked.data.timedOut, true, 'the window resolved instead of expiring')
+    await new Promise((r) => setTimeout(r, 900))
+
+    const pg = await browser.newPage()
+    await pg.goto(`${BASE}/b/${key}`, { waitUntil: 'networkidle0' })
+    const shown = await pg.evaluate(() => {
+      const el = document.querySelector('.sf-agent')
+      return { lost: el?.classList.contains('sf-agent-lost'), label: el?.textContent.trim() }
+    })
+    await pg.close()
+    assert.equal(shown.lost, true, `the board did not show the lost listener: ${JSON.stringify(shown)}`)
+    assert.match(shown.label, /listener lost/)
+  })
+})
+
+/* Clamping to the bottom edge dragged the popover over the annotated text. */
+describe('popover placement', () => {
+  const PAGE = page('place.html', `<h1>place</h1>${'<p>A line of prose to annotate.</p>'.repeat(16)}`)
+  let key
+
+  before(async () => { key = await open(PAGE, 'popover place') })
+
+  test('a popover with no room below opens above the click', async () => {
+    const pg = await browser.newPage()
+    await pg.setViewport({ width: 1100, height: 720 })
+    await pg.goto(`${BASE}/b/${key}`, { waitUntil: 'networkidle0' })
+    if (!(await pg.evaluate("document.querySelector('.sf-annotate-toggle').classList.contains('sf-on')"))) {
+      await pg.click('.sf-annotate-toggle')
+    }
+    const at = await pg.evaluate(() => {
+      const visible = [...document.querySelectorAll('#sf-content p[data-sid]')].filter((p) => {
+        const r = p.getBoundingClientRect()
+        return r.top > 0 && r.bottom < window.innerHeight
+      })
+      const r = visible[visible.length - 1].getBoundingClientRect()
+      return { x: r.left + 40, y: r.top + r.height / 2 }
+    })
+    await pg.mouse.click(at.x, at.y)
+    await pg.waitForSelector('.sf-popover')
+    const bottom = await pg.evaluate(() => document.querySelector('.sf-popover').getBoundingClientRect().bottom)
+    await pg.close()
+    assert.ok(bottom <= at.y, `popover covers the click (bottom ${bottom}, click ${at.y})`)
   })
 })

@@ -78,6 +78,24 @@ function el(tag, className, text) {
   return node
 }
 
+function closeMark(size) {
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`
+}
+
+const CHAT_SEND_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>'
+
+function actionButton(cls, label, key) {
+  const btn = el('button', cls)
+  btn.type = 'button'
+  btn.append(document.createTextNode(label))
+  if (key) {
+    const hint = el('span', 'sf-key', key)
+    hint.setAttribute('aria-hidden', 'true')
+    btn.appendChild(hint)
+  }
+  return btn
+}
+
 // Inline style, not the hidden attribute: easel.css sets explicit display
 // on chrome classes, which would override the UA's [hidden] rule.
 function show(node, on) {
@@ -125,7 +143,9 @@ function syncThemeToggle() {
   const effective =
     mode === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode
   document.documentElement.dataset.theme = fam ? `${fam}-${effective}` : effective
-  ui.themeToggle.textContent = `[T]heme: ${mode}`
+  ui.themeToggle.textContent = mode[0].toUpperCase() + mode.slice(1)
+  tunerApply(tunerState())
+  syncTunerSwatches()
   for (const btn of ui.themePick?.querySelectorAll('[data-family]') || []) {
     btn.classList.toggle('sf-on', btn.dataset.family === fam)
   }
@@ -134,6 +154,12 @@ function syncThemeToggle() {
 function applyWidth(px) {
   document.documentElement.style.setProperty('--content-max', `${px}px`)
   localStorage.setItem(WIDTH_STORAGE, px)
+}
+
+function resetWidth() {
+  document.documentElement.style.removeProperty('--content-max')
+  localStorage.removeItem(WIDTH_STORAGE)
+  ui.widthSlider.value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--content-max')) || 1040
 }
 
 function nudgeWidth(dir) {
@@ -171,6 +197,7 @@ function buildChrome() {
   const brand = el('a', 'sf-brand', 'easel')
   brand.href = '/'
   brand.title = 'All sessions'
+  ui.themeTools = el('div', 'sf-theme-tools')
   ui.themePick = el('div', 'sf-theme-pick')
   for (const [fam, label] of THEME_FAMILIES) {
     const btn = el('button', 'sf-theme-pick-btn', label)
@@ -180,11 +207,12 @@ function buildChrome() {
     btn.onclick = () => setThemeFamily(fam)
     ui.themePick.appendChild(btn)
   }
-  ui.tunerToggle = el('button', 'sf-tuner-toggle', '⚙')
+  ui.tunerToggle = el('button', 'sf-tuner-toggle')
   ui.tunerToggle.type = 'button'
   ui.tunerToggle.title = 'Tune the theme: colors, fonts, size'
+  ui.tunerToggle.setAttribute('aria-label', 'Tune the theme')
+  ui.tunerToggle.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
   ui.tunerToggle.onclick = () => toggleTuner()
-  ui.themePick.appendChild(ui.tunerToggle)
   ui.title = el('div', 'sf-title')
   ui.wipMarker = el('div', 'sf-wip-marker', 'unpublished changes')
   ui.wipMarker.title = 'unpublished changes' // collapsed, it is a dot with no room for the words
@@ -214,24 +242,17 @@ function buildChrome() {
   ui.widthSlider.title = 'Page width — E narrows, R widens; double-click to reset to the theme default'
   ui.widthSlider.value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--content-max')) || 1040
   ui.widthSlider.oninput = () => applyWidth(ui.widthSlider.value)
-  ui.widthSlider.ondblclick = () => {
-    document.documentElement.style.removeProperty('--content-max')
-    localStorage.removeItem(WIDTH_STORAGE)
-    ui.widthSlider.value = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--content-max')) || 1040
-  }
-  ui.width = el('span', 'sf-width')
-  ui.width.append(el('span', 'sf-width-keys', '[E]'), ui.widthSlider, el('span', 'sf-width-keys', '[R]'))
-  ui.annotateToggle = el('button', 'sf-annotate-toggle', '[A]nnotate')
-  ui.annotateToggle.type = 'button'
+  ui.widthSlider.ondblclick = resetWidth
+  ui.annotateToggle = actionButton('sf-annotate-toggle', 'Annotate', 'A')
   ui.annotateToggle.title = `Annotate mode (press ${ANNOTATE_HOTKEY})`
   ui.annotateToggle.onclick = () => setAnnotating(!state.annotating)
   // Panel launchers live in the always-visible topbar: the panels themselves are
   // display:none until sf-open, so nothing inside them can be the opener.
-  ui.queueToggle = el('button', 'sf-queue-toggle sf-empty', '[F]eedback')
-  ui.queueToggle.type = 'button'
+  ui.queueToggle = actionButton('sf-queue-toggle', 'Feedback', 'F')
   ui.queueToggle.title = `Feedback panel (${QUEUE_HOTKEY_LABEL})`
   ui.queueToggleCount = el('span', 'sf-queue-count', '0')
   ui.queueToggle.appendChild(ui.queueToggleCount)
+  show(ui.queueToggleCount, false)
   ui.queueToggle.onclick = () => toggleQueue()
 
   ui.sendNow = el('button', 'sf-send-now', 'Send')
@@ -239,10 +260,9 @@ function buildChrome() {
   ui.sendNow.title = `Send queued feedback to the agent (${SEND_HOTKEY_LABEL})`
   ui.sendNow.onclick = sendDrafts
   show(ui.sendNow, false)
-  ui.chatToggle = el('button', 'sf-chat-toggle', '[C]hat')
-  ui.chatToggle.type = 'button'
+  ui.chatToggle = actionButton('sf-chat-toggle', 'Chat', 'C')
   ui.chatToggle.title = `Conversation panel (${CHAT_HOTKEY_LABEL})`
-  ui.chatToggle.onclick = () => toggleChat()
+  ui.chatToggle.onclick = () => { if (toggleChat()) ui.chatInput.focus() }
   ui.endSession = el('button', 'sf-end-session', 'End')
   ui.endSession.type = 'button'
   ui.endSession.title = 'End this board: the agent stops waiting and nothing more can be sent'
@@ -254,7 +274,12 @@ function buildChrome() {
     localStorage.setItem(COMPACT_STORAGE, state.compact ? '1' : '0')
   }
 
-  topbar.append(brand, ui.themePick, ui.title, ui.wipMarker, ui.agent, ui.status, ui.themeToggle, ui.width, ui.annotateToggle, ui.sendNow, ui.queueToggle, ui.chatToggle, ui.endSession, ui.compactToggle)
+  ui.identity = el('div', 'sf-identity')
+  ui.identity.append(brand, ui.title, ui.wipMarker, ui.agent, ui.status)
+  ui.actions = el('div', 'sf-actions')
+  ui.actions.append(ui.annotateToggle, ui.queueToggle, ui.chatToggle, ui.sendNow, ui.endSession)
+  ui.themeTools.append(ui.themeToggle, ui.tunerToggle, ui.compactToggle)
+  topbar.append(ui.identity, ui.actions, ui.themeTools)
 
   // A narrow viewport opens collapsed; once the button is pressed that choice
   // is the browser's, at every width.
@@ -268,6 +293,7 @@ function buildChrome() {
   ui.queueHeader = el('div', 'sf-queue-header', 'Feedback')
   ui.queueCount = el('span', 'sf-queue-count', '0')
   ui.queueHeader.appendChild(ui.queueCount)
+  show(ui.queueCount, false)
   ui.queueHeader.onclick = () => toggleQueue()
   ui.queueList = el('div', 'sf-queue-list')
   ui.queueSend = el('button', 'sf-queue-send', 'Send')
@@ -277,28 +303,42 @@ function buildChrome() {
   ui.queue.append(ui.queueHeader, ui.queueList, ui.queueSend)
 
   ui.chat = el('aside', 'sf-chat')
-  const chatHeader = el('div', 'sf-chat-header', 'Conversation')
-  chatHeader.onclick = () => toggleChat()
+  const chatDrawer = el('div', 'sf-chat-drawer')
+  const chatHeader = el('div', 'sf-chat-header')
+  const chatTitle = el('div', 'sf-chat-title', 'Conversation')
+  chatTitle.onclick = () => toggleChat()
+  const chatClose = el('button', 'sf-chat-close')
+  chatClose.type = 'button'
+  chatClose.setAttribute('aria-label', 'Close chat')
+  chatClose.innerHTML = closeMark(14)
+  chatClose.onclick = () => toggleChat(false)
+  chatHeader.append(chatTitle, chatClose)
   ui.chatLog = el('div', 'sf-chat-log')
   ui.chatWorking = el('div', 'sf-chat-working')
-  ui.chatWorking.append(el('span', 'sf-spinner'), el('span', null, 'Working…'))
+  ui.chatWorking.appendChild(el('span', 'sf-chat-working-label', 'Working…'))
   ui.chatCancel = el('button', 'sf-chat-cancel', 'Cancel')
   ui.chatCancel.type = 'button'
   ui.chatCancel.onclick = () => api.send('POST', `/api/b/${KEY}/cancel-waiting`).catch(() => {})
   ui.chatWorking.appendChild(ui.chatCancel)
   show(ui.chatWorking, false)
+  chatDrawer.append(chatHeader, ui.chatLog, ui.chatWorking)
   ui.chatForm = el('form', 'sf-chat-form')
   ui.chatInput = el('textarea', 'sf-chat-input')
   ui.chatInput.placeholder = 'Message the agent…'
-  ui.chatInput.rows = 2
-  ui.chatSubmit = el('button', 'sf-chat-submit', 'Send')
+  ui.chatInput.rows = 1
+  ui.chatInput.setAttribute('aria-label', 'Message the agent')
+  ui.chatSubmit = el('button', 'sf-chat-submit')
   ui.chatSubmit.type = 'submit'
+  ui.chatSubmit.innerHTML = CHAT_SEND_ICON
+  ui.chatSubmit.setAttribute('aria-label', 'Send')
+  ui.chatSubmit.disabled = true
   ui.chatForm.append(ui.chatInput, ui.chatSubmit)
   ui.chatForm.onsubmit = async (e) => {
     e.preventDefault()
     const text = ui.chatInput.value.trim()
     if (!text) return
     ui.chatInput.value = ''
+    growChatInput()
     try {
       // Through the mutation chain (no overtaking an in-flight click); withDrafts is
       // unconditional so a just-queued draft rides along — the server no-ops when empty.
@@ -312,8 +352,12 @@ function buildChrome() {
     }
     show(ui.chatWorking, true)
   }
-  submitOnEnter(ui.chatInput, () => ui.chatForm.requestSubmit())
-  ui.chat.append(chatHeader, ui.chatLog, ui.chatWorking, ui.chatForm)
+  ui.chatInput.addEventListener('input', growChatInput)
+  submitOnEnter(ui.chatInput, () => {
+    if (!ui.chatInput.value.trim() || ui.chatSubmit.disabled) return
+    ui.chatForm.requestSubmit()
+  })
+  ui.chat.append(chatDrawer, ui.chatForm)
 
   ui.audit = el('div', 'sf-audit')
   ui.auditBadge = el('button', 'sf-audit-badge')
@@ -396,15 +440,13 @@ function restoreDetails() {
   }
 }
 
-// Headed sections/cards get a heading toggle plus a foot "collapse section"
-// control; foot-collapse scrolls the heading back into view (no jump).
 function attachCollapse() {
   const make = (host, head, withFoot) => {
     if (head.querySelector('.sf-sec-toggle')) return
     const btn = document.createElement('button')
     btn.type = 'button'
     btn.className = 'sf-sec-toggle'
-    btn.title = 'collapse / expand'
+    btn.title = 'Collapse'
     btn.setAttribute('aria-expanded', 'true')
     head.appendChild(btn)
     let foot = null
@@ -412,12 +454,13 @@ function attachCollapse() {
       foot = document.createElement('button')
       foot.type = 'button'
       foot.className = 'sf-sec-foot'
-      foot.textContent = 'collapse section'
+      foot.textContent = 'Collapse section'
       host.appendChild(foot)
     }
     const set = (collapsed, scrollBack) => {
       host.classList.toggle('sf-collapsed', collapsed)
       btn.setAttribute('aria-expanded', String(!collapsed))
+      btn.title = collapsed ? 'Expand' : 'Collapse'
       if (collapsed) {
         const hidden = [...host.children].filter((n) => n !== head && n !== foot && !n.classList.contains('sf-sec-toggle')).length
         host.dataset.sfHidden = `${hidden} ${hidden === 1 ? 'block' : 'blocks'} hidden — click to expand`
@@ -426,13 +469,13 @@ function attachCollapse() {
     }
     btn.addEventListener('click', (e) => {
       e.stopPropagation()
-      set(!host.classList.contains('sf-collapsed'), false)
+      const collapsing = !host.classList.contains('sf-collapsed')
+      set(collapsing, collapsing)
     })
     foot?.addEventListener('click', (e) => {
       e.stopPropagation()
       set(true, true)
     })
-    // The whole collapsed drawer expands on click; expanded sections ignore this.
     host.addEventListener('click', (e) => {
       if (!host.classList.contains('sf-collapsed')) return
       if (e.target.closest('.sf-sec-toggle')) return
@@ -651,7 +694,7 @@ function render() {
   renderChat(d.chat)
   renderAudit(d.audit)
   resolveGate(d.audit)
-  setAgentWaiting(d.agentWaiting)
+  setAgentPresence(d)
   // A tab that arrives after the end never sees the `end` event, so status is
   // the only thing that tells it. The server refuses the writes either way.
   // Belt-and-braces, deliberately untested: no second render of an ended
@@ -892,13 +935,14 @@ function renderQueue(items) {
   const drafts = items.filter((i) => i.state === 'draft')
   ui.queueCount.textContent = String(drafts.length)
   ui.queueToggleCount.textContent = String(drafts.length)
-  ui.queueToggle.classList.toggle('sf-empty', drafts.length === 0)
+  show(ui.queueCount, drafts.length > 0)
+  show(ui.queueToggleCount, drafts.length > 0)
   ui.queueSend.textContent = drafts.length ? `Send ${drafts.length}` : 'Send'
   ui.queueSend.disabled = drafts.length === 0
   ui.sendNow.textContent = `Send ${drafts.length}`
   show(ui.sendNow, drafts.length > 0)
   state.draftCount = drafts.length
-  ui.chatSubmit.textContent = drafts.length ? 'Send with feedback' : 'Send'
+  paintChatSubmit(drafts.length)
   for (const item of items) {
     if (item.kind === 'chat') continue
     const row = el('div', 'sf-queue-item')
@@ -931,9 +975,11 @@ function renderQueue(items) {
     }
     row.appendChild(el('span', 'sf-item-round', `r${item.round}`))
     if (item.state === 'draft') {
-      const remove = el('button', 'sf-item-remove', '×')
+      const remove = el('button', 'sf-item-remove')
       remove.type = 'button'
       remove.title = 'Remove from queue'
+      remove.setAttribute('aria-label', 'Remove from queue')
+      remove.innerHTML = closeMark(12)
       remove.onclick = () => removeFeedback(item.id)
       row.appendChild(remove)
     }
@@ -968,7 +1014,32 @@ function togglePanel(panel, button, force) {
 }
 
 const toggleQueue = (force) => togglePanel(ui.queue, ui.queueToggle, force)
-const toggleChat = (force) => togglePanel(ui.chat, ui.chatToggle, force)
+const toggleChat = (force) => {
+  const open = togglePanel(ui.chat, ui.chatToggle, force)
+  if (open) growChatInput()
+  else ui.chatInput.blur()
+  return open
+}
+
+function paintChatSubmit(drafts) {
+  const withFeedback = drafts > 0
+  const label = withFeedback ? 'Send with feedback' : 'Send'
+  ui.chatSubmit.setAttribute('aria-label', label)
+  ui.chatSubmit.title = label
+  ui.chatSubmit.classList.toggle('sf-chat-submit-combo', withFeedback)
+  if (withFeedback) ui.chatSubmit.textContent = `Send +${drafts}`
+  else ui.chatSubmit.innerHTML = CHAT_SEND_ICON
+}
+
+function growChatInput() {
+  const ta = ui.chatInput
+  if (!ta) return
+  ta.style.height = 'auto'
+  const h = Math.min(160, ta.scrollHeight)
+  ta.style.height = `${h}px`
+  ui.chatForm.classList.toggle('sf-chat-form-tall', h > 40)
+  ui.chatSubmit.disabled = ended || !ta.value.trim()
+}
 
 // Enter submits, Shift+Enter is a newline. IME composition must pass through:
 // picking a candidate fires Enter and would otherwise submit a half-typed word.
@@ -1066,10 +1137,29 @@ function reportForcedReveal(reason) {
   show(ui.gateBanner, true)
 }
 
-function setAgentWaiting(waiting) {
+const agentPresence = { waiting: false, lost: null }
+
+/* Patch, not replace: the daemon broadcasts `lost` alone when a listener
+   reattaches and `waiting` alone when one parks or leaves, so applying a whole
+   payload would clear whichever half the event left out.
+   A lost listener is the state the reader most needs — a killed `easel await`
+   (routine in editor harnesses) otherwise looks exactly like a live one. */
+function setAgentPresence(patch) {
+  if (patch.waiting != null) agentPresence.waiting = Boolean(patch.waiting)
+  // The SSE event carries the agent id; /state and hello carry {agent, at}.
+  if ('lost' in patch || 'listenerLost' in patch) {
+    const lost = 'lost' in patch ? patch.lost : patch.listenerLost
+    agentPresence.lost = lost ? (lost.agent ?? lost) : null
+  }
+  const { waiting, lost } = agentPresence
+  const stranded = !waiting && Boolean(lost)
   ui.agent.classList.toggle('sf-agent-waiting', waiting)
-  ui.agentLabel.textContent = waiting ? 'agent waiting' : ''
-  ui.agent.title = waiting ? 'agent waiting' : '' // narrow enough, the label drops to the spinner
+  ui.agent.classList.toggle('sf-agent-lost', stranded)
+  ui.agentLabel.textContent = waiting ? 'agent waiting' : stranded ? 'listener lost' : ''
+  // Nothing is dropped — the cursor is server-side, so the batch waits.
+  ui.agent.title = stranded
+    ? `${lost} stopped listening. Send still queues; it delivers when an agent reattaches.`
+    : ''
   show(ui.cancelWait, waiting)
 }
 
@@ -1143,6 +1233,9 @@ function markAnnotated(items) {
 
 // A1..A9, B1..B9, … — two characters, so it stays legible inline and reads the
 // same on the page marker and its queue row.
+// Twinned with chipLabel() in daemon/store.js, which stamps the same label onto
+// the agent's copy. The chrome is served raw and shares no module with the
+// daemon, so the two are pinned together by test/agent-signals.test.js instead.
 function markerId(i) {
   return String.fromCharCode(65 + Math.floor(i / 9) % 26) + ((i % 9) + 1)
 }
@@ -1344,11 +1437,15 @@ function openDraftManager(node, event, drafts, pin) {
 }
 
 function placePopover(node, event) {
-  // .sf-popover is position:fixed, so clientX/clientY need no scroll offset. The
-  // lower clamp keeps it on screen when it is taller than the viewport.
+  // .sf-popover is position:fixed, so clientX/clientY need no scroll offset.
   const pad = 8
+  const height = node.offsetHeight
+  const below = event.clientY + pad
+  // Flip above the click when it will not fit below. Clamping to the bottom
+  // edge, which is what this did, drags it over the text the note is about.
+  const top = below + height <= window.innerHeight - pad ? below : Math.max(pad, event.clientY - height - pad)
   node.style.left = `${Math.max(pad, Math.min(event.clientX, window.innerWidth - node.offsetWidth - pad))}px`
-  node.style.top = `${Math.max(pad, Math.min(event.clientY + pad, window.innerHeight - node.offsetHeight - pad))}px`
+  node.style.top = `${top}px`
 }
 
 const POPOVER_FOCUSABLE = 'textarea, input, select, a[href], [contenteditable]:not([contenteditable="false"])'
@@ -1361,7 +1458,7 @@ function openPopover(node, event, pin) {
   const extra = pin ? { x: pin.x, y: pin.y, quote: pin.quote || undefined } : selectionAnchor(node)
   popover = el('div', 'sf-popover')
   const excerptText = extra.quote || anchorText(node).trim().slice(0, 200)
-  popover.appendChild(el('div', 'sf-popover-label', pin ? 'Pin' : extra.quote ? 'Selection' : 'Element'))
+  popover.appendChild(el('div', 'sf-popover-label', pin ? 'Pin' : extra.quote ? 'Selection' : 'Note'))
   const excerpt = el('div', 'sf-popover-excerpt', excerptText)
   popover.appendChild(excerpt)
   const textarea = el('textarea', 'sf-popover-text')
@@ -1460,7 +1557,7 @@ function openPopover(node, event, pin) {
   const cancelBtn = el('button', 'sf-popover-cancel', 'Cancel')
   cancelBtn.type = 'button'
   cancelBtn.onclick = closePopover
-  actions.append(attachBtn, picker, queueBtn, cancelBtn)
+  actions.append(attachBtn, picker, cancelBtn, queueBtn)
   popover.append(textarea, strip, actions)
   // Dictation pastes into whatever holds focus; a click on the pop-up's body or
   // buttons must not blur the comment box. Buttons still get their click.
@@ -1477,7 +1574,7 @@ function openPopover(node, event, pin) {
   logCommentBox('open')
 
   function excerptToLabel() {
-    return el('div', 'sf-popover-label', extra.quote ? 'Selection' : 'Element')
+    return el('div', 'sf-popover-label', extra.quote ? 'Selection' : 'Note')
   }
 }
 
@@ -1779,7 +1876,7 @@ function handleEvent(event, data) {
       const haveWip = state.data?.wip?.updatedAt || null
       const missed = data.seq != null && eventSeq != null && data.seq !== eventSeq
       eventSeq = data.seq ?? eventSeq
-      if (data.agentWaiting != null) setAgentWaiting(data.agentWaiting)
+      setAgentPresence({ waiting: data.agentWaiting, listenerLost: data.listenerLost ?? null })
       if (missed || have !== data.round || haveWip !== data.wipAt) sync()
       break
     }
@@ -1794,7 +1891,7 @@ function handleEvent(event, data) {
       sync()
       break
     case 'agent':
-      setAgentWaiting(data.waiting)
+      setAgentPresence(data)
       break
     case 'end':
       setEnded()
@@ -2245,6 +2342,7 @@ window.addEventListener('message', async (event) => {
 })
 
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  syncThemeToggle()
   if (wbReady) postToWhiteboard({ type: WB.themeChanged, theme: wbTheme() })
 })
 
@@ -2287,12 +2385,35 @@ function tunerState() {
 
 function tunerSave(s) { localStorage.setItem(TUNER_STORAGE, JSON.stringify(s)) }
 
+function tunerMode() {
+  const t = document.documentElement.dataset.theme || ''
+  return t === 'dark' || t.endsWith('-dark') ? 'dark' : 'light'
+}
+
+function tunerVarsForMode(s, mode) {
+  if (s.varsByMode?.[mode]) return s.varsByMode[mode]
+  if (s.lockedMode === mode) return s.vars || {}
+  if (!s.lockedMode && !s.varsByMode) return s.vars || {}
+  return {}
+}
+
 function tunerApply(s) {
-  for (const [k, v] of Object.entries(s.vars || {})) document.documentElement.style.setProperty(k, v)
+  const root = document.documentElement
+  for (const [, name] of TUNER_VARS) root.style.removeProperty(name)
+  for (const [k, v] of Object.entries(tunerVarsForMode(s, tunerMode()))) root.style.setProperty(k, v)
   if (s.bodyFont) document.body.style.fontFamily = s.bodyFont
   if (s.headFont) document.documentElement.style.setProperty('--font-serif', s.headFont)
   if (s.size) document.body.style.fontSize = `${s.size}px`
   if (s.lh) document.body.style.lineHeight = s.lh
+}
+
+function syncTunerSwatches() {
+  if (!tunerPanel) return
+  const stored = tunerVarsForMode(tunerState(), tunerMode())
+  for (const input of tunerPanel.querySelectorAll('input.sf-tuner-color[data-var]')) {
+    const v = stored[input.dataset.var]
+    input.value = v?.startsWith('#') ? v : tunerHex(input.dataset.var)
+  }
 }
 
 // Any CSS color → #rrggbb, via canvas normalization (oklch parses fine).
@@ -2315,21 +2436,41 @@ function toggleTuner() {
   if (!tunerPanel) tunerPanel = buildTuner()
   const open = tunerPanel.classList.toggle('sf-open')
   ui.tunerToggle.classList.toggle('sf-on', open)
+  if (open) {
+    const r = ui.tunerToggle.getBoundingClientRect()
+    const margin = 16
+    const width = Math.min(320, window.innerWidth - margin * 2)
+    const right = Math.max(margin, window.innerWidth - r.right)
+    tunerPanel.style.left = 'auto'
+    tunerPanel.style.right = `${Math.round(Math.min(right, window.innerWidth - width - margin))}px`
+    tunerPanel.style.width = `${width}px`
+    tunerPanel.style.top = `${Math.round(r.bottom + 8)}px`
+  }
 }
 
 function buildTuner() {
   const s = tunerState()
   const panel = el('aside', 'sf-tuner')
   panel.append(el('div', 'sf-tuner-title', 'Theme tuner'))
+  const familyRow = el('div', 'sf-tuner-row')
+  familyRow.append(el('span', null, 'Family'), ui.themePick)
+  panel.appendChild(familyRow)
 
   for (const [label, varName] of TUNER_VARS) {
     const row = el('label', 'sf-tuner-row', label)
     const input = el('input', 'sf-tuner-color')
     input.type = 'color'
-    input.value = s.vars?.[varName]?.startsWith('#') ? s.vars[varName] : tunerHex(varName)
+    input.dataset.var = varName
+    const stored = tunerVarsForMode(s, tunerMode())[varName]
+    input.value = stored?.startsWith('#') ? stored : tunerHex(varName)
     input.oninput = () => {
+      const mode = tunerMode()
       s.vars = s.vars || {}
       s.vars[varName] = input.value
+      s.lockedMode = mode
+      s.varsByMode = s.varsByMode || {}
+      s.varsByMode[mode] ??= (!s.varsByMode.light && !s.varsByMode.dark) ? { ...s.vars } : {}
+      s.varsByMode[mode][varName] = input.value
       document.documentElement.style.setProperty(varName, input.value)
       tunerSave(s)
     }
@@ -2373,6 +2514,15 @@ function buildTuner() {
   }
   rangeRow('Body size', 'size', 14, 19, 0.5, parseFloat(getComputedStyle(document.body).fontSize), (v) => { document.body.style.fontSize = `${v}px` })
   rangeRow('Leading', 'lh', 1.4, 2.0, 0.02, 1.7, (v) => { document.body.style.lineHeight = v })
+  ui.width = el('span', 'sf-width')
+  ui.width.append(el('span', 'sf-width-keys', 'E'), ui.widthSlider, el('span', 'sf-width-keys', 'R'))
+  const widthReset = el('button', 'sf-width-reset', 'Reset width')
+  widthReset.type = 'button'
+  widthReset.title = 'Reset page width to the theme default'
+  widthReset.onclick = resetWidth
+  const widthRow = el('div', 'sf-tuner-row')
+  widthRow.append(el('span', null, 'Page width'), ui.width, widthReset)
+  panel.appendChild(widthRow)
 
   const actions = el('div', 'sf-tuner-actions')
   // Edits already persist as they happen; this is the close that says so.
@@ -2400,5 +2550,4 @@ buildWhiteboard()
 setAnnotating(true)
 sync()
 startEvents()
-tunerApply(tunerState())
 if (new URLSearchParams(location.search).has('tuner')) toggleTuner()
