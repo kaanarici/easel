@@ -246,12 +246,12 @@ test('publish after edit yields round 2 with a diff', async () => {
 })
 
 test('a template render failure names the schema doc — the author usually never loaded the skill', async () => {
-  const bad = join(DATA_DIR, 'bad-queue.json')
-  writeFileSync(bad, JSON.stringify({ title: 'no campaign' }))
-  const { status, data } = await api('POST', '/api/open', { template: 'queue', data: bad })
+  const bad = join(DATA_DIR, 'bad-review.json')
+  writeFileSync(bad, JSON.stringify({ title: 'no about' }))
+  const { status, data } = await api('POST', '/api/open', { template: 'review', data: bad })
   assert.equal(status, 422)
-  assert.match(data.error, /queue\.campaign/)
-  assert.match(data.error, /docs\/templates\/queue\.md/)
+  assert.match(data.error, /review\.about/)
+  assert.match(data.error, /docs\/templates\/review\.md/)
 })
 
 test('publish with no source change is a no-op, not a phantom round', async () => {

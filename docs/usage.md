@@ -11,7 +11,7 @@ install/install.sh
 
 Idempotent — re-running converges to the same state. It writes `~/Library/LaunchAgents/com.sentience.easeld.plist` (derived from the clone's own location, never a hardcoded path), bootstraps the agent, puts an `easel` entry point on PATH, and waits for `/health`.
 
-Nothing updates itself after this: upgrading is `easel update`, manual by design, and the opt-in alternative is `easel autoupdate on` — [Auto-update](#auto-update) explains what it does and why it is not the default.
+Nothing updates itself after this: upgrading is `easel update`.
 
 `install.sh --uninstall` boots the agent out, removes the plist, and removes the entry point.
 
@@ -57,52 +57,6 @@ Pulls the installed checkout (`--ff-only`), reinstalls deps, rebuilds the excali
 
 **A verification done without that restart is invalid, and it fails in a way that looks like success:** the old template renders without erroring, so the board just quietly shows the pre-change behaviour. Publishing through `--template` after a kickstart is the check that actually exercises the daemon's template path — publishing pre-rendered HTML does not, because that path never loads a template at all.
 
-### Auto-update
-
-Off by default, and that is a position, not an omission. easel ships enhancements regularly and `easel update` is the whole upgrade — but an auto-updater is standing permission to execute whatever the remote ships next: `git pull` brings new code, `npm install` runs dependency lifecycle scripts, and the daemon restarts into all of it, unattended. A tool your agents drive deserves to have that decision made consciously, so nothing here installs itself until you say so.
-
-Worth saying before describing the shipped one: **writing your own auto-updater is a good first exercise in AI-security hygiene.** The questions it forces — which remote do I trust, what checks does new code pass before it runs on my machine, what may run at install time, where is the record of what changed — are exactly the questions worth asking of every agent-adjacent tool you allow to modify itself. A short shell script and a launchd plist will do it, and `install/auto-update.sh` is a readable reference.
-
-The shipped one:
-
-```
-easel autoupdate on            # daily, 10:00 by default; --at HH:MM picks the time
-easel autoupdate off           # removes the agent and records the choice, so agents stop suggesting it
-easel autoupdate status        # on / off / unset
-```
-
-What each run does, and refuses to do:
-
-- **Fast-forward only, default branch only, clean tree only.** A dirty checkout, a feature branch, or a diverged history (a force-push, say) is a situation for a human; each is skipped and logged, never resolved unattended. The branch must also track `origin/<default>` itself — a default-named branch tracking a fork is refused, so an unattended update cannot install from outside the remote you think it is following.
-- **Nothing new, nothing touched.** When the checkout is already current it exits without reinstalling or restarting anything, so an enabled updater does not drop your live board tabs once a day for no reason.
-- **One update path.** An actual update delegates to the same `install/update.sh` → `install.sh` converge that a manual `easel update` uses, so auto and manual cannot drift apart.
-- **A written record.** Every run appends to `~/.easel/auto-update.log`: timestamp, verdict, the incoming commit subjects logged before they land, and the range that actually landed logged after — so an origin that moves mid-update cannot leave unlogged code running. "What changed on this machine, and when" always has an answer.
-
-What it does **not** do: verify anything beyond your clone's `origin` remote over its existing transport. If your trust model wants review-before-run, signature checks, or a canary period, that is precisely the write-your-own exercise above.
-
-## Telemetry
-
-Once a day, and on the first start after an update changes its version, easel sends one anonymous heartbeat to `https://api.sentience.com/telemetry/easel-heartbeat`:
-
-```json
-{ "installId": "3f2b8c1e-…", "version": "0.2.0", "os": "darwin" }
-```
-
-- `installId` is a random UUID generated on first start and kept in `~/.easel/install-id`. It is not derived from anything about you or your machine.
-- Nothing else is sent: no board contents, no file names, no usernames, no hostnames. The collector keeps no IP address beyond ordinary server request logs.
-- Why: easel has no accounts and no server, so this is the only way to know how many installs are in use. The collector forwards each heartbeat to PostHog and counts distinct install ids.
-- At most one heartbeat a day per version, sent after the daemon is already serving. A failure is ignored and never retried until the next start.
-
-Turning it off:
-
-```
-easel telemetry off        # writes ~/.easel/telemetry.off; the daemon checks it on every start
-easel telemetry on         # removes it
-easel telemetry status     # on / off
-```
-
-`EASEL_TELEMETRY=off` works too. Set at install time (`EASEL_TELEMETRY=off install/install.sh`) it writes the same marker, because the launchd agent never sees your shell's environment; set on a daemon you run by hand, it applies to that process.
-
 ## The loop
 
 1. `easel open --template review --data plan.json --title "..."` — publishes and returns a URL. Re-opening an existing board returns the same session.
@@ -117,15 +71,9 @@ Full command reference and HTTP shapes: `docs/api.md`.
 | Template | Use it for | Doc |
 |---|---|---|
 | `review` | plans, designs, comparisons — prose sections plus decisions and votes | [templates/review.md](templates/review.md) |
-| `eval` | eval runs — three modes on data shape: dossiers, blind compare, item matrix | [templates/eval.md](templates/eval.md) |
-| `compare` | 2–6 named arms side by side — before/after, variants, shipped vs certified — one verdict per case | [templates/compare.md](templates/compare.md) |
-| `replay` | conversation exchanges replayed through 2–4 named arms — same message, one reply per arm, one verdict per exchange | [templates/replay.md](templates/replay.md) |
-| `gallery` | image candidates judged by looking — design concepts, generated imagery, UI states | [templates/gallery.md](templates/gallery.md) |
-| `rulings` | labeled cases adjudicated one by one — answer keys, goldens, triage lists, model-vs-key disagreements | [templates/rulings.md](templates/rulings.md) |
-| `queue` | a campaign's open decisions on one board, orchestrator-owned | [templates/queue.md](templates/queue.md) |
 | `page` | anything else — hand-authored HTML through the same shell | [templates/page.md](templates/page.md) |
 
-Templates are pre-audited, so a generated board cannot hit the layout and contrast problems that hand-written HTML kept reproducing. Reach for `page` only when the shape genuinely is not a review or an eval.
+Templates are pre-audited, so a generated board cannot hit the layout and contrast problems that hand-written HTML kept reproducing. Reach for `page` only when the shape genuinely is not a review.
 
 ## Authoring rules
 

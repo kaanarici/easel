@@ -15,7 +15,6 @@ import { anchorForSid, annotateAndDiff, blankBakedDiagrams, extractIslands } fro
 import { markdown } from '../templates/_html.js'
 import { ROUTES } from './routes.js'
 import { readerChecks, sinceLast } from './reader-checks.js'
-import { sendHeartbeat } from './telemetry.js'
 
 const PORT = Number(process.env.EASEL_PORT || 4400)
 const ROOT = dirname(fileURLToPath(import.meta.url))
@@ -71,7 +70,7 @@ const MAX_COMMENT_BYTES = 32 * 1024 * 1024
 const MAX_IMAGES = 8
 const IMAGE_EXT = { png: 'png', jpeg: 'jpg', gif: 'gif', webp: 'webp' }
 const ATTACHMENTS_DIR = join(DATA_DIR, 'attachments')
-const TEMPLATES = new Set(['review', 'eval', 'page', 'answer-key', 'queue', 'rulings', 'compare', 'gallery', 'replay'])
+const TEMPLATES = new Set(['review', 'page'])
 const DAEMON_STARTED_AT = new Date().toISOString()
 
 const store = createStore()
@@ -1760,7 +1759,6 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`easeld ${VERSION} listening on http://127.0.0.1:${PORT}`)
   truncateOversizedLog(join(DATA_DIR, 'daemon.log'))
   setImmediate(attachBootWatchers)
-  sendHeartbeat({ dataDir: DATA_DIR, version: VERSION })
 })
 
 server.on('error', (err) => {

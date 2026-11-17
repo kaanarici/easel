@@ -3,13 +3,11 @@
 // Contract: exit 0 on success period, --json everywhere, no resident processes.
 
 import { parseArgs } from 'node:util'
-import { resolve, dirname, join } from 'node:path'
+import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { readFileSync } from 'node:fs'
 import { formatFindings } from '../daemon/reader-checks.js'
-import { optOutPath, telemetryOff } from '../daemon/telemetry.js'
 
 // Findings arrive after the round is already written, so say how to correct it
 // without costing the reader a second round. This is the whole point of --amend.
@@ -20,28 +18,10 @@ const amendHint = (key) =>
 const BASE = process.env.EASEL_URL || 'http://127.0.0.1:4400'
 
 const TEMPLATE_RULES = {
-  queue:
-    'a queue card is: one question on one line · options as buttons, each with a one-line basis, one recommended\n' +
-    '· read_first = the board by the agent that did the work · a body of a few sentences · every card id or callsign glossed where it first appears',
   review:
     'a review board opens with about: what the work does for a person, what was wrong, what this round changes · the ask comes after it, in summary\n' +
     '· a review decision is: a question with options as buttons, each with a one-line basis, one recommended · its why_you names what that one decision decides\n' +
     '· evidence goes in the detail field above the options, not on the button · every term glossed where it first appears',
-  compare:
-    'a compare verdict is: pick the winning arm, or tie, or all-bad · the comparison sits above the verdict, not a pointer elsewhere\n' +
-    '· every arm name and case id glossed at first use',
-  eval:
-    'a dossier verdict is: pass or needs-work after the notes · a blind compare pick: the better candidate, unlabeled\n' +
-    '· a matrix best: strongest answer per row; overall verdict per case · every dataset and model id glossed',
-  gallery:
-    'a gallery vote is: pick the candidate that ships, or none of these · the image is the argument, not a description of it\n' +
-    '· pin width to the size the design actually ships at · every variant labeled',
-  replay:
-    'a replay verdict is: pick which arm held up on this exchange, or tie, or all-bad\n' +
-    '· the user message and each arm\'s reply are above the verdict · every arm name glossed at first use',
-  rulings:
-    'a ruling is: a label and rationale, then a vote widget — accept or override\n' +
-    '· skim sections (options: []) have no buttons · every label given a plain-language meaning in the teach block',
   // page has no decision UI — no rule block
 }
 
@@ -56,7 +36,7 @@ function hasDecisions(content) {
 
 const USAGE = `usage:
   easel open <file.html|file.md> [--title T] [--json]
-  easel open --template <review|eval|compare|replay|gallery|rulings|page|queue> --data <file.json> [--title T] [--json]
+  easel open --template <review|page> --data <file.json> [--title T] [--json]
   easel publish <key> [--note "..."] [--amend] [--json]
   easel await <key> [--agent ID] [--cursor N] [--ack M] [--timeout-s T] [--json]
   easel feedback <key> [--since N] [--json]
@@ -65,9 +45,7 @@ const USAGE = `usage:
   easel end <key> [--reopen] [--json]
   easel gc [--older-than 7d] [--json]
   easel purge [--older-than 30d] [--json]
-  easel update
-  easel autoupdate on [--at HH:MM] | off | status
-  easel telemetry on | off | status`
+  easel update`
 
 // Throws {connection: true} on transport failure, {http: true} on a non-2xx.
 async function request(method, path, body, { timeoutMs } = {}) {
@@ -346,43 +324,6 @@ const commands = {
     const { status, error } = spawnSync('bash', [script], { stdio: 'inherit' })
     if (error) fail(error.message)
     process.exit(status ?? 1)
-  },
-
-  // Local like update: the opt-in unattended updater, off until turned on.
-  async autoupdate() {
-    const { values, positionals } = parseArgs({
-      args: rest,
-      options: { at: { type: 'string' } },
-      allowPositionals: true,
-    })
-    const flag = { on: '--enable', off: '--disable', status: '--status' }[positionals[0]]
-    if (!flag) fail(USAGE)
-    const script = resolve(dirname(fileURLToPath(import.meta.url)), '../install/auto-update.sh')
-    const args = [script, flag]
-    if (values.at) args.push('--at', values.at)
-    const { status, error } = spawnSync('bash', args, { stdio: 'inherit' })
-    if (error) fail(error.message)
-    process.exit(status ?? 1)
-  },
-
-  // Local: the daemon checks this marker on each start, since launchd never sees the shell's env.
-  async telemetry() {
-    const dataDir = process.env.EASEL_DATA_DIR || join(homedir(), '.easel')
-    const marker = optOutPath(dataDir)
-    switch (rest[0]) {
-      case 'off':
-        mkdirSync(dataDir, { recursive: true })
-        writeFileSync(marker, new Date().toISOString() + '\n')
-        break
-      case 'on':
-        rmSync(marker, { force: true })
-        break
-      case 'status':
-        break
-      default:
-        fail(USAGE)
-    }
-    console.log((await telemetryOff(dataDir)) ? 'off' : 'on')
   },
 }
 

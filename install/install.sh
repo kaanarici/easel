@@ -139,7 +139,7 @@ relocate_stale_entries() {
   local dir name link
   for dir in "${SWEEP_DIRS[@]}"; do
     [ "$dir" = "$DEST_DIR" ] && continue
-    for name in easel queue-lint; do
+    for name in easel; do
       link="$dir/$name"
       [ -f "$link" ] || continue
       grep -qF "$MARKER" "$link" 2>/dev/null || continue
@@ -149,18 +149,6 @@ relocate_stale_entries() {
   done
 }
 
-# An enabled updater must follow the root on relocation, or the old checkout's
-# schedule keeps rewriting the plist and shim back to the previous install.
-migrate_updater() {
-  local uplist="$PLIST_DIR/com.sentience.easeld-update.plist" prog h m
-  [ -f "$uplist" ] || return 0
-  prog="$(/usr/libexec/PlistBuddy -c 'Print :ProgramArguments:0' "$uplist" 2>/dev/null || true)"
-  [ "$prog" = "$ROOT/install/auto-update.sh" ] && return 0
-  h="$(/usr/libexec/PlistBuddy -c 'Print :StartCalendarInterval:Hour' "$uplist" 2>/dev/null || echo 10)"
-  m="$(/usr/libexec/PlistBuddy -c 'Print :StartCalendarInterval:Minute' "$uplist" 2>/dev/null || echo 0)"
-  EASEL_DATA_DIR="$STATE_DIR" "$ROOT/install/auto-update.sh" --enable --at "$(printf '%02d:%02d' "$h" "$m")"
-  say "auto-update agent rebound to this checkout"
-}
 
 # An unrelated entry on PATH belongs to someone else, on install and uninstall alike.
 remove_owned_link() {
@@ -178,18 +166,10 @@ if [ "$UNINSTALL" -eq 1 ]; then
   bootout_if_loaded
   say "agent booted out"
   if [ -f "$PLIST" ]; then rm -f "$PLIST"; say "removed $PLIST"; else say "no plist at $PLIST"; fi
-  # The auto-update agent rides along; its log and opt-out marker live in
-  # ~/.easel and survive, like everything else there.
-  UPDATE_LABEL="com.sentience.easeld-update"
-  launchctl bootout "gui/$UID/$UPDATE_LABEL" 2>/dev/null || true
-  if [ -f "$PLIST_DIR/$UPDATE_LABEL.plist" ]; then
-    rm -f "$PLIST_DIR/$UPDATE_LABEL.plist"; say "removed the auto-update agent"
-  fi
   LINK_DIRS=("${SWEEP_DIRS[@]}")
   [ -n "$BIN_DIR" ] && LINK_DIRS+=("$BIN_DIR")
   for d in "${LINK_DIRS[@]}"; do
     remove_owned_link "$d" easel
-    remove_owned_link "$d" queue-lint
   done
   if owns_skill_link; then
     rm -f "$SKILL_LINK"; say "removed $SKILL_LINK"
@@ -217,13 +197,6 @@ say "launcher: $LAUNCHER resolves node at each launch"
 mkdir -p "$STATE_DIR" "$PLIST_DIR"
 say "state dir: $STATE_DIR"
 
-# launchd never sees the shell's env, so an install-time opt-out becomes the marker the daemon reads.
-if [ "${EASEL_TELEMETRY:-}" = "off" ]; then
-  date -u +%Y-%m-%dT%H:%M:%SZ > "$STATE_DIR/telemetry.off"
-fi
-if [ ! -f "$STATE_DIR/install-id" ] && [ ! -f "$STATE_DIR/telemetry.off" ]; then
-  say "telemetry: once a day and on each new version easel sends an anonymous install id, its version and OS — 'easel telemetry off' stops it (docs/usage.md#telemetry)"
-fi
 
 if [ ! -f "$CLI" ]; then
   echo "error: CLI entrypoint not found at $CLI" >&2
@@ -241,23 +214,6 @@ if { [ -e "$ENTRY" ] || [ -L "$ENTRY" ]; } && ! owns_entry "$ENTRY"; then
 fi
 write_entry "$ENTRY"
 say "cli: $ENTRY -> $CLI (port $PORT)"
-
-# queue-lint rides the same converge path, so `easel update` keeps it current.
-LINT="$ROOT/cli/queue-lint.sh"
-chmod +x "$LINT"
-LINT_ENTRY="$DEST_DIR/queue-lint"
-if { [ -e "$LINT_ENTRY" ] || [ -L "$LINT_ENTRY" ]; } && ! owns_entry "$LINT_ENTRY"; then
-  echo "error: $LINT_ENTRY exists and was not installed by this checkout" >&2
-  echo "  remove it yourself, or pick another directory with --bin-dir" >&2
-  exit 1
-fi
-rm -f "$LINT_ENTRY"
-printf '%s\n' \
-  '#!/bin/sh' \
-  "$MARKER $ROOT" \
-  "exec bash \"$LINT\" \"\$@\"" > "$LINT_ENTRY"
-chmod +x "$LINT_ENTRY"
-say "cli: $LINT_ENTRY -> $LINT"
 
 relocate_stale_entries
 
@@ -292,8 +248,6 @@ bootout_if_loaded
 launchctl bootstrap "gui/$UID" "$PLIST"
 launchctl enable "gui/$UID/$LABEL" 2>/dev/null || true
 say "agent bootstrapped: $LABEL"
-
-migrate_updater
 
 printf '  waiting for daemon on port %s' "$PORT"
 ok=0

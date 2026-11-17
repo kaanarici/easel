@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const WIDTHS = [800, 1400]
-const TEMPLATES = ['review', 'eval', 'answer-key', 'page']
+const TEMPLATES = ['review', 'page']
 const THEMES = ['light', 'dark']
 
 const outDir = resolve(process.argv[2] || join(HERE, 'shots'))

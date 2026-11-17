@@ -4,7 +4,7 @@ import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -34,37 +34,13 @@ after(() => daemon?.kill())
 
 // --- template rule blocks ---
 
-test('open --template queue prints the spec rule block after the URL', async () => {
-  const dataFile = join(DATA_DIR, 'queue.json')
-  writeFileSync(dataFile, JSON.stringify({
-    campaign: 'test',
-    entries: [],
-    review_stamps: [],
-    open_prs: [],
-  }))
-  const { stdout } = await cli('open', '--template', 'queue', '--data', dataFile, '--title', 'Test queue')
-  const lines = stdout.trim().split('\n')
-  assert.ok(lines.length >= 2, 'should have URL line plus rule block')
-  const ruleText = lines.slice(1).join('\n')
-  assert.ok(
-    ruleText.includes('a queue card is:'),
-    `rule block should start with "a queue card is:", got: ${ruleText}`,
-  )
-  assert.ok(ruleText.includes('one question on one line'), 'rule mentions one question on one line')
-  assert.ok(ruleText.includes('one-line basis, one recommended'), 'rule mentions basis and recommended')
-  assert.ok(ruleText.includes('every card id or callsign glossed'), 'rule mentions gloss requirement')
-})
-
-test('open --template queue rule block matches spec text exactly', async () => {
-  const dataFile = join(DATA_DIR, 'queue2.json')
-  writeFileSync(dataFile, JSON.stringify({ campaign: 'x', entries: [], review_stamps: [], open_prs: [] }))
-  const { stdout } = await cli('open', '--template', 'queue', '--data', dataFile, '--title', 'Q2')
-  const lines = stdout.trim().split('\n')
-  const ruleBlock = lines.slice(1).join('\n')
-  const expected =
-    'a queue card is: one question on one line · options as buttons, each with a one-line basis, one recommended\n' +
-    '· read_first = the board by the agent that did the work · a body of a few sentences · every card id or callsign glossed where it first appears'
-  assert.equal(ruleBlock, expected)
+test('open --template review prints the spec rule block after the URL', async () => {
+  const dataFile = join(DATA_DIR, 'review.json')
+  writeFileSync(dataFile, readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'samples', 'review.json')))
+  const { stdout } = await cli('open', '--template', 'review', '--data', dataFile, '--title', 'Test review')
+  const ruleBlock = stdout.trim().split('\n').slice(1).join('\n')
+  assert.ok(ruleBlock.startsWith('a review board opens with about:'), `got: ${ruleBlock}`)
+  assert.ok(ruleBlock.includes('one-line basis, one recommended'))
 })
 
 test('open --template page prints no rule block (no structured decision UI)', async () => {

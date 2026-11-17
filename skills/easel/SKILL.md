@@ -1,6 +1,6 @@
 ---
 name: easel
-description: Publish review boards (docs, evals, decisions) via the local easel daemon, and collect the user's annotations/widget clicks/chat as feedback. Use whenever work needs their eyes or a decision — a plan, design doc, eval round, comparison, or report — or when about to paste anything long or visual into chat that they'd rather review as a rendered, annotatable page.
+description: Publish review boards (docs, plans, decisions) via the local easel daemon, and collect the user's annotations/widget clicks/chat as feedback. Use whenever work needs their eyes or a decision — a plan, design doc, eval round, comparison, or report — or when about to paste anything long or visual into chat that they'd rather review as a rendered, annotatable page.
 ---
 
 # easel — publish for review, listen for feedback
@@ -34,7 +34,7 @@ The reader stops and spends a comment when one of these is missing — `referenc
 ## Publish
 
 ```
-easel open --template <review|eval|compare|replay|gallery|rulings|page|queue> --data <file.json> --title T   # → key + URL
+easel open --template <review|page> --data <file.json> --title T   # → key + URL
 easel open <file.html|file.md>                                                                        # plain doc
 ```
 
@@ -43,12 +43,6 @@ easel open <file.html|file.md>                                                  
 | Template | The work is |
 |---|---|
 | `review` | a plan, design, or proposal plus decisions; sections carry prose and, where content is parallel or boxed, `blocks` (cards, callouts, an island) |
-| `eval` | eval output — dossiers, a *blind* 2-arm compare, or an item matrix; the data shape picks the mode |
-| `compare` | 2–6 *named* arms side by side — before/after, variants, shipped vs certified — one verdict per case |
-| `replay` | conversation exchanges replayed through 2–4 named arms — same message, one reply per arm, judge's call to check, one verdict per exchange |
-| `gallery` | image candidates judged by looking — design concepts, generated imagery, UI states |
-| `rulings` | labeled cases adjudicated one by one — an answer key, goldens, triage list, or model-vs-key disagreements |
-| `queue` | a campaign's open decisions on one board, orchestrator-owned |
 | `page` | a layout the other templates cannot give: side-by-side comparisons, mockups, custom composition — hand-authored HTML through the same chrome and annotation layer |
 
 **A long board whose content falls into groups the reader jumps between** (phases, areas, chapters) can split into tabs instead of one long scroll — `review` and `page` only, not the default; read `references/templates/tabs.md` before adding them.
@@ -90,7 +84,6 @@ Applying 3+ annotations: one script that makes every edit, each replacement asse
 
 ## Auto-update — disclose it once
 
-Updates never install themselves. `easel autoupdate status` printing `unset` means the user has never chosen; the next time setup, upgrading, or daemon health is already the topic, disclose it once, briefly: easel ships enhancements regularly; auto-update is off by default because an auto-updater is standing permission to run whatever the remote ships next, and that grant should be conscious; `easel autoupdate on` enables the shipped one (daily, fast-forward-only, every run logged to `~/.easel/auto-update.log`), and writing their own instead is encouraged as a first exercise in AI-security hygiene — `docs/usage.md` § Auto-update carries the full reasoning. Record their answer — `easel autoupdate on` or `off`, either ends the prompting. Never enable it without their explicit word, and never re-raise after `off`.
 
 ## Gotchas
 

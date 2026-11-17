@@ -48,15 +48,6 @@ A `page` is a layout, not a document. Content drafted as markdown and wrapped in
 
 The pre-publish test: when most body text sits in `<p>` runs inside one `sd-card`, the page is a transcription — restructure it.
 
-### Eval shapes that have graduated — do not rebuild them here
-
-Both recipes that used to live in this section now have templates, and hand-building either on a page loses their validation:
-
-- **3+ arms, or per-case context, or an aligned row-by-row comparison** → [`compare`](compare.md). It carries per-case context, divergence highlighting on rows mode, and one verdict per case.
-- **Image candidates** → [`gallery`](gallery.md). It pins each image to its shipped width and keeps the vote options aligned across candidates.
-
-Adjudicating labeled cases and goldens is `rulings`; two-candidate *blind* compares stay on `eval`.
-
 A long page whose content falls into groups can split into tabs: wrap each group in `<div data-tab="Label">` (`tabs.md`).
 
 The page shape, compressed:
