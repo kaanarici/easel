@@ -348,11 +348,13 @@ describe('easel.css covers every sd-chart class the renderer emits', () => {
 
   test('all five series slots are painted in both token blocks', () => {
     for (let i = 1; i <= 5; i++) {
-      assert.ok(css.split(`--color-chart-${i}:`).length === 4,
-        `--color-chart-${i} needs default, literary-light, and literary-dark values`)
+      assert.ok(css.split(`--color-chart-${i}:`).length === 5,
+        `--color-chart-${i} needs default-light, default-dark, literary-light, and literary-dark values`)
     }
-    assert.match(css, /html\[data-theme="light"\],\s*html\[data-theme="dark"\]\s*\{[^}]*--color-chart-1:\s*#1F8A65/,
-      'default family must use the standard chart sequence')
+    assert.match(css, /html\[data-theme="light"\]\s*\{[^}]*--color-chart-1:\s*#2a78d6/,
+      'default light must use the validated dataviz sequence')
+    assert.match(css, /html\[data-theme="dark"\]\s*\{[^}]*--color-chart-1:\s*#3987e5/,
+      'default dark must use the validated dataviz sequence')
     for (let i = 0; i < 5; i++) {
       for (const kind of ['bar', 'line', 'dot', 'swatch']) {
         assert.match(css, new RegExp(`\\.sd-chart-${kind}\\.sd-chart-s${i}\\b`), `no ${kind} rule for s${i}`)

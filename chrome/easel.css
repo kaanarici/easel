@@ -287,16 +287,23 @@ html[data-theme="fig-light"] {
   --color-link: var(--color-primary);
   --color-focus: var(--color-primary);
 }
-/* The default series order is green / blue / purple / orange / pink. Literary
-   families keep the warmer oklch set. Do not reorder a set casually — each one
-   is the colorblind-safe sequence for that family. */
-html[data-theme="light"],
+/* The default series is the validated dataviz set (blue / orange / green /
+   amber / pink), shared with the artifact kit. Literary families keep the
+   warmer oklch set. Do not reorder a set casually — each one is the
+   colorblind-safe sequence for that family. */
+html[data-theme="light"] {
+  --color-chart-1: #2a78d6;
+  --color-chart-2: #eb6834;
+  --color-chart-3: #1baf7a;
+  --color-chart-4: #eda100;
+  --color-chart-5: #e87ba4;
+}
 html[data-theme="dark"] {
-  --color-chart-1: #1F8A65;
-  --color-chart-2: #2E79B5;
-  --color-chart-3: #7B64B8;
-  --color-chart-4: #F0A040;
-  --color-chart-5: #C85898;
+  --color-chart-1: #3987e5;
+  --color-chart-2: #d95926;
+  --color-chart-3: #199e70;
+  --color-chart-4: #c98500;
+  --color-chart-5: #d55181;
 }
 html[data-theme="lantern-light"],
 html[data-theme="fig-light"] {
