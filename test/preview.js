@@ -95,7 +95,7 @@ function chromeFixture(title) {
   </div>
   <div class="sf-rounds">
     <div class="sf-round-strip">
-      <span class="sf-round-keys">[Q]·[W]</span>
+      <span class="sf-round-keys">Q · W</span>
       <button class="sf-round-pill" data-round="1">r1</button>
       <button class="sf-round-pill sf-round-current sf-round-active" data-round="2">r2</button>
     </div>

@@ -49,7 +49,7 @@ function errorBlock(message, source, index) {
   return [
     `<div class="sd-diagram-error" data-diagram-index="${index}">`,
     '<div class="sd-diagram-error-title">Diagram did not render</div>',
-    `<div>${esc(message)}</div>`,
+    `<div>${esc(String(message).replace(/\x1b\[[0-9;]*m/g, '').trim())}</div>`,
     `<pre><code>${esc(source)}</code></pre>`,
     '</div>',
   ].join('')

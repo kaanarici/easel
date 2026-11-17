@@ -544,7 +544,7 @@ function buildTabSet(panels) {
     selectTab(set, (to + set.tabs.length) % set.tabs.length, { focus: true })
   })
   set.strip.addEventListener('scroll', () => markTabOverflow(set.strip), { passive: true })
-  set.bar.appendChild(el('span', 'sf-tab-keys', `[${TAB_BACK_HOTKEY.toUpperCase()}]·[${TAB_FORWARD_HOTKEY.toUpperCase()}]`))
+  set.bar.appendChild(el('span', 'sf-tab-keys', `${TAB_BACK_HOTKEY.toUpperCase()} · ${TAB_FORWARD_HOTKEY.toUpperCase()}`))
   panels[0].before(set.bar)
   tabSets.push(set)
   const wanted = tabChoice.get(set.index) ?? (set.index === 0 ? hashTab() : null)
@@ -851,7 +851,7 @@ function renderRounds(d) {
   strip.classList.toggle('sf-expanded', state.roundsExpanded)
   let activePill = null
   if (showPills) {
-    const keys = el('span', 'sf-round-keys', '[Q]·[W]')
+    const keys = el('span', 'sf-round-keys', 'Q · W')
     keys.title = 'Q: previous revision · W: next revision'
     ui.roundKeys = keys
     ui.rounds.appendChild(strip)

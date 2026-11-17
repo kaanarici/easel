@@ -2538,8 +2538,8 @@ button.sf-audit-badge {
   position: sticky;
   top: var(--sf-chrome-h, 0px);
   z-index: 3;
-  margin: 12px 0 36px;
-  background: var(--color-base-200);
+  margin: 12px 0 32px;
+  background: var(--color-base-100);
   box-shadow: inset 0 -1px 0 var(--border);
   font-family: var(--font-sans);
 }
@@ -2561,16 +2561,16 @@ button.sf-audit-badge {
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 12px 14px 11px;
+  gap: 6px;
+  padding: 10px 12px 9px;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
   background: none;
   color: var(--color-muted-content);
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
@@ -2608,19 +2608,19 @@ button.sf-audit-badge {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 40px;
-  padding-top: 18px;
+  margin-top: 32px;
+  padding-top: 16px;
   border-top: 1px solid var(--border-subtle);
 }
 #sf-content :is(button.sf-tab-prev, button.sf-tab-next) {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   max-width: 48%;
-  padding: 7px 12px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--color-base-100);
   color: var(--color-base-content);
   font: inherit;
@@ -2629,33 +2629,19 @@ button.sf-audit-badge {
 }
 #sf-content button.sf-tab-prev { text-align: left; }
 #sf-content button.sf-tab-next { margin-left: auto; text-align: right; }
-#sf-content :is(button.sf-tab-prev, button.sf-tab-next):hover { border-color: var(--color-primary); }
+#sf-content :is(button.sf-tab-prev, button.sf-tab-next):hover { background: var(--fill-hover); }
 #sf-content :is(button.sf-tab-prev, button.sf-tab-next):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .sf-tab-pager-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
-.sf-tab-pager-kicker {
-  font-size: 0.64rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-muted-content);
-}
-.sf-tab-pager-label { font-size: 0.9rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sf-tab-pager-arrow { color: var(--color-primary); font-size: 1rem; line-height: 1; flex: none; }
+.sf-tab-pager-kicker { font-size: 11px; color: var(--color-muted-content); }
+.sf-tab-pager-label { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sf-tab-pager-arrow { color: var(--color-muted-content); font-size: 14px; line-height: 1; flex: none; }
 .sf-tab-pager-key, .sf-tab-keys {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-family: var(--font-sans);
+  font-size: 10px;
   color: var(--color-muted-content);
+  opacity: 0.7;
 }
-.sf-tab-pager-key {
-  flex: none;
-  min-width: 18px;
-  padding: 1px 5px;
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  border-radius: 4px;
-  text-align: center;
-  line-height: 1.4;
-}
+.sf-tab-pager-key { flex: none; border: 0; background: none; padding: 0; }
 .sf-tab-keys { flex: none; align-self: center; padding-left: 12px; cursor: default; }
 /* No keyboard to press them with. */
 @media (max-width: 720px) { .sf-tab-pager-key, .sf-tab-keys { display: none; } }
