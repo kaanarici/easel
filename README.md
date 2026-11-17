@@ -39,7 +39,7 @@ To back out, `install/install.sh --uninstall` removes the agent, the plist, and 
 | Command | Does |
 |---|---|
 | `easel open <file.html>` | publish a plain document |
-| `easel open --template <review\|eval\|rulings\|queue\|page> --data <file.json>` | publish a structured board |
+| `easel open --template <review\|page> --data <file.json>` | publish a structured board |
 | `easel publish <key> --note "…"` | re-render the source as a new round |
 | `easel await <key> --agent <id>` | block until feedback, cancel, or board end |
 | `easel feedback <key> --since N` | read feedback without touching any cursor |
